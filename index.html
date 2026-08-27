@@ -87,6 +87,47 @@
   .topnav.stuck{align-items:center;}
   .topnav.stuck .btn{align-self:center;}
   .topnav.stuck .tab:not(.active){display:none;}
+  .topnav.stuck .tab.active{cursor:pointer;}
+  .topnav.stuck .tab.active::after{
+    content:"\25BE";
+    margin-left:10px;
+    font-size:10px;
+    vertical-align:1px;
+  }
+  .topnav.stuck.menu-open .tab.active::after{content:"\25B4";}
+  .nav-menu{
+    display:none;
+    position:absolute;
+    top:100%;
+    left:0;
+    margin-top:-1px;
+    min-width:min(300px, 82vw);
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+    box-shadow:0 8px 22px rgba(43,38,32,0.16);
+    z-index:30;
+  }
+  .topnav.stuck.menu-open .nav-menu{display:block;}
+  .nav-menu-item{
+    display:block;
+    width:100%;
+    text-align:left;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:11px 16px;
+    background:var(--paper);
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--ink-soft);
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  .nav-menu-item:last-child{border-bottom:none;}
+  .nav-menu-item:hover{background:var(--line);}
+  .nav-menu-item.current{background:var(--ink);color:var(--paper);}
   .tabs{
     display:flex;
     gap:2px;
@@ -691,8 +732,26 @@ Object.keys(DATA).forEach(cat=>{
 
 const tabsEl = document.getElementById('tabs');
 const panelsEl = document.getElementById('panels');
+const topnavEl = document.getElementById('topnav');
 const catNames = Object.keys(DATA);
 tabsEl.setAttribute('role','tablist');
+
+function closeNavMenu(){
+  topnavEl.classList.remove('menu-open');
+  const active = tabsEl.querySelector('.tab.active');
+  if(active) active.setAttribute('aria-expanded','false');
+}
+
+function selectCategory(ci){
+  ci = +ci;
+  document.querySelectorAll('.tab').forEach(t=>{
+    const on = +t.dataset.cat === ci;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  document.querySelectorAll('.panel').forEach((p, pi)=>p.classList.toggle('active', pi===ci));
+  document.querySelectorAll('.nav-menu-item').forEach(mi=>mi.classList.toggle('current', +mi.dataset.cat === ci));
+}
 
 catNames.forEach((cat, ci)=>{
   const tab = document.createElement('button');
@@ -702,13 +761,18 @@ catNames.forEach((cat, ci)=>{
   tab.setAttribute('role','tab');
   tab.setAttribute('aria-selected', ci===0 ? 'true' : 'false');
   tab.setAttribute('aria-controls','panel-'+ci);
+  tab.setAttribute('aria-haspopup','menu');
+  tab.setAttribute('aria-expanded','false');
   tab.innerHTML = cat + ' <span class="count" id="count-'+ci+'">0/'+DATA[cat].items.length+'</span><span class="score-chip" id="chip-'+ci+'" style="display:none;"></span>';
   tab.onclick = ()=>{
-    document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('active'); t.setAttribute('aria-selected','false');});
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    tab.setAttribute('aria-selected','true');
-    document.getElementById('panel-'+ci).classList.add('active');
+    // When collapsed to a single pill, the active pill acts as a menu toggle.
+    if(topnavEl.classList.contains('stuck') && tab.classList.contains('active')){
+      const open = topnavEl.classList.toggle('menu-open');
+      tab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      return;
+    }
+    selectCategory(ci);
+    closeNavMenu();
   };
   tabsEl.appendChild(tab);
 
@@ -775,6 +839,30 @@ catNames.forEach((cat, ci)=>{
     </div>`;
   panel.innerHTML = html;
   panelsEl.appendChild(panel);
+});
+
+// Dropdown shown when the nav is collapsed, for jumping between categories.
+const navMenu = document.createElement('div');
+navMenu.className = 'nav-menu';
+navMenu.id = 'navMenu';
+navMenu.setAttribute('role','menu');
+catNames.forEach((cat, ci)=>{
+  const mi = document.createElement('button');
+  mi.type = 'button';
+  mi.className = 'nav-menu-item' + (ci===0 ? ' current' : '');
+  mi.dataset.cat = ci;
+  mi.setAttribute('role','menuitem');
+  mi.textContent = cat;
+  mi.onclick = ()=>{ selectCategory(ci); closeNavMenu(); };
+  navMenu.appendChild(mi);
+});
+tabsEl.after(navMenu);
+
+document.addEventListener('click', (e)=>{
+  if(topnavEl.classList.contains('menu-open') && !e.target.closest('#topnav')) closeNavMenu();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape') closeNavMenu();
 });
 
 function updateCount(ci){
@@ -972,9 +1060,10 @@ document.getElementById('resetBtn').onclick = ()=>{
 catNames.forEach((c,ci)=>updateCount(ci));
 
 // Collapse the nav to just the active pill once it sticks to the top.
-const topnavEl = document.getElementById('topnav');
 const syncStuck = ()=>{
-  topnavEl.classList.toggle('stuck', topnavEl.getBoundingClientRect().top <= 0);
+  const stuck = topnavEl.getBoundingClientRect().top <= 0;
+  topnavEl.classList.toggle('stuck', stuck);
+  if(!stuck) closeNavMenu();
 };
 window.addEventListener('scroll', syncStuck, {passive:true});
 window.addEventListener('resize', syncStuck);
