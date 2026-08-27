@@ -88,19 +88,22 @@
     color:var(--ink);
   }
   .tool-link.active .tool-name{color:var(--paper);}
-  .tool-desc{
-    display:none;
-    margin-top:8px;
-    font-size:12px;
-    line-height:1.5;
-    color:var(--ink-soft);
-  }
-  .tool-link.active .tool-desc{color:var(--line);}
   .tool-view{display:none;}
   .tool-view.active{display:block;}
-  @media (min-width:861px){
-    .tool-link:hover .tool-desc,
-    .tool-link:focus-visible .tool-desc{display:block;}
+  .tool-header{margin-bottom:24px;}
+  .tool-header h2{
+    font-family:'Newsreader', serif;
+    font-weight:500;
+    font-size:22px;
+    letter-spacing:-0.01em;
+    margin:0 0 6px;
+  }
+  .tool-header p{
+    margin:0;
+    max-width:60ch;
+    font-size:13px;
+    line-height:1.6;
+    color:var(--ink-soft);
   }
   @media (max-width:860px){
     .shell{grid-template-columns:1fr;gap:24px;}
@@ -452,18 +455,6 @@
   .prompt-module{
     padding-bottom:12px;
   }
-  .module-title{
-    font-family:'Newsreader', serif;
-    font-size:22px;
-    font-weight:500;
-    margin:0 0 6px;
-  }
-  .module-sub{
-    font-size:12px;
-    color:var(--ink-soft);
-    margin:0 0 16px;
-    line-height:1.6;
-  }
   .prompt-textarea{
     width:100%;
     min-height:140px;
@@ -600,22 +591,22 @@
       <button class="tool-link active" type="button" data-tool="0" aria-current="page">
         <span class="tool-step">01</span>
         <span class="tool-name">Decode a prompt</span>
-        <span class="tool-desc">Turn vague design prompts into clear requirements, priorities, and evaluation criteria.</span>
       </button>
       <button class="tool-link" type="button" data-tool="1">
         <span class="tool-step">02</span>
         <span class="tool-name">Evaluate a design</span>
-        <span class="tool-desc">Use a structured framework to judge prompt adherence, visual quality, usability, and overall execution.</span>
       </button>
     </nav>
 
     <main class="tool-main">
 
       <section class="tool-view active" id="tool-0" aria-labelledby="tool-0-title">
+        <div class="tool-header">
+          <h2 id="tool-0-title">Decode a prompt</h2>
+          <p>Turn vague design prompts into clear requirements, priorities, and evaluation criteria.</p>
+        </div>
         <section class="prompt-module">
-          <h2 class="module-title" id="tool-0-title">What is this prompt looking for?</h2>
-          <p class="module-sub">Paste the AI prompt below. This pulls out what the response actually needs to nail, ranked by importance where that's a meaningful thing to do.</p>
-          <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..."></textarea>
+          <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..." aria-label="AI prompt to decode"></textarea>
           <div class="module-action-bar">
             <span class="module-status" id="promptStatus"></span>
             <button class="btn" id="analyzeBtn">Find what it's looking for</button>
@@ -624,7 +615,11 @@
         </section>
       </section>
 
-      <section class="tool-view" id="tool-1" aria-label="Evaluate a design">
+      <section class="tool-view" id="tool-1" aria-labelledby="tool-1-title">
+        <div class="tool-header">
+          <h2 id="tool-1-title">Evaluate a design</h2>
+          <p>Use a structured framework to judge prompt adherence, visual quality, usability, and overall execution.</p>
+        </div>
         <div class="topnav" id="topnav">
           <div class="tabs" id="tabs"></div>
           <button class="btn ghost small" id="resetBtn" aria-label="Reset all"><span class="label-long">Reset all</span><span class="label-short">Reset</span></button>
