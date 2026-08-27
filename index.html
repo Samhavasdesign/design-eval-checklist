@@ -346,7 +346,13 @@
     font-family:'Newsreader', serif;
     font-size:18px;
     font-weight:500;
+    margin:0 0 4px;
+  }
+  .perception-hint{
+    font-size:12px;
+    color:var(--ink-soft);
     margin:0 0 10px;
+    line-height:1.5;
   }
   .perception-input{
     width:100%;
@@ -537,6 +543,199 @@
     top:0.35em;
   }
 
+  /* ---- AI mode ------------------------------------------------------ */
+  .visually-hidden{
+    position:absolute;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+  .step{
+    border-top:1px solid var(--line-strong);
+    padding:20px 0 24px;
+  }
+  .step:first-of-type{border-top:none;padding-top:0;}
+  .step-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .step-num{
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+  }
+  .step-title{
+    font-family:'Newsreader', serif;
+    font-size:18px;
+    font-weight:500;
+    margin:0;
+  }
+  .step-hint{
+    display:none;
+    font-size:12px;
+    color:var(--ink-soft);
+    font-style:italic;
+    margin:0;
+  }
+  .step.locked .step-hint{display:block;}
+  .step.locked .step-body{display:none;}
+  .step-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:8px 0 0;
+    line-height:1.5;
+  }
+  .shot-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+    gap:12px;
+    margin-top:14px;
+  }
+  .shot{
+    border:1px solid var(--line-strong);
+    background:#fff;
+    padding:8px;
+  }
+  .shot img{
+    display:block;
+    width:100%;
+    height:110px;
+    object-fit:cover;
+    object-position:top;
+    background:var(--paper-2);
+  }
+  .shot-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin-top:7px;
+  }
+  .shot-name{
+    font-size:12px;
+    color:var(--ink-soft);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .shot-drop{
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    line-height:1;
+    padding:4px 7px;
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--ink-soft);
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+  .shot-drop:hover{background:var(--line);color:var(--red);}
+  .key-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:20px;
+  }
+  .key-label{
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .key-input{
+    flex:1;
+    min-width:220px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:8px 10px;
+    border:1px solid var(--line-strong);
+    background:#fff;
+    color:var(--ink);
+  }
+  .key-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:8px 0 0;
+    max-width:60ch;
+  }
+  .key-note.saved{color:var(--green);}
+  .ai-result{
+    display:none;
+    margin-top:22px;
+    background:#fff;
+    border:1px solid var(--line-strong);
+  }
+  .ai-result.show{display:block;}
+  .ai-output{padding:20px 22px 8px;}
+  .ai-summary{
+    font-family:'Newsreader', serif;
+    font-size:16px;
+    line-height:1.7;
+    margin:0 0 6px;
+  }
+  .ai-rationale{
+    font-family:'Newsreader', serif;
+    font-size:15px;
+    font-style:italic;
+    line-height:1.6;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .verdict-group{margin-top:20px;}
+  .verdict-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+  .verdict-list li{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:4px 10px;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .verdict-list li:last-child{border-bottom:none;}
+  .verdict-tag{
+    font-size:12px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:2px 7px;
+    border:1px solid currentColor;
+    align-self:start;
+    white-space:nowrap;
+  }
+  .verdict-tag.met{color:var(--green);}
+  .verdict-tag.partial{color:var(--amber-border);}
+  .verdict-tag.missing{color:var(--red);}
+  .verdict-tag.unverifiable{color:var(--ink-soft);}
+  .verdict-req{
+    font-family:'Newsreader', serif;
+    font-size:16px;
+    line-height:1.5;
+    margin:0;
+  }
+  .verdict-evidence{
+    grid-column:2;
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0;
+  }
+  .verdict-screens{
+    grid-column:2;
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:0.03em;
+    margin:0;
+  }
+
   /* ---- Mobile ------------------------------------------------------- */
   @media (max-width:600px){
     .wrap{padding:20px 16px 56px;}
@@ -603,6 +802,16 @@
     .prompt-output{padding:16px 16px 8px;}
     .copy-row{padding:0 16px 16px;}
     .score-card{scroll-margin-top:76px;}
+
+    .shot-grid{grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));gap:10px;}
+    .shot-drop{min-width:44px;min-height:44px;font-size:16px;}
+    .key-input{font-size:16px;min-width:0;width:100%;flex:1 1 100%;padding:12px 10px;}
+    .key-row .btn{width:100%;}
+    .ai-output{padding:16px 16px 8px;}
+    .verdict-list li{grid-template-columns:1fr;}
+    .verdict-tag{justify-self:start;}
+    .verdict-evidence,
+    .verdict-screens{grid-column:1;}
   }
 </style>
 </head>
@@ -624,6 +833,9 @@
       </button>
       <button class="tool-link" type="button" data-tool="1">
         <span class="tool-name">Evaluate a design</span>
+      </button>
+      <button class="tool-link" type="button" data-tool="2">
+        <span class="tool-name">AI mode</span>
       </button>
     </nav>
 
@@ -665,6 +877,64 @@
           <button class="btn ghost small" id="resetBtn" aria-label="Reset all"><span class="label-long">Reset all</span><span class="label-short">Reset</span></button>
         </div>
         <div id="panels"></div>
+      </section>
+
+      <section class="tool-view" id="tool-2" aria-labelledby="tool-2-title">
+        <div class="tool-header">
+          <h2 id="tool-2-title">AI mode</h2>
+          <p>Paste the prompt, upload the screens it produced, and Claude judges how faithfully the result follows the prompt.</p>
+        </div>
+
+        <div class="step" id="aiStep1">
+          <div class="step-head">
+            <span class="step-num">01</span>
+            <h3 class="step-title">The prompt</h3>
+          </div>
+          <textarea id="aiPromptInput" class="prompt-textarea" placeholder="Paste the prompt the design was built from..." aria-label="Prompt the design was built from"></textarea>
+          <div class="module-action-bar">
+            <button class="btn" type="button" id="aiPromptSaveBtn">Continue</button>
+            <span class="module-status" id="aiPromptStatus"></span>
+          </div>
+        </div>
+
+        <div class="step locked" id="aiStep2" aria-live="polite">
+          <div class="step-head">
+            <span class="step-num">02</span>
+            <h3 class="step-title">The screens</h3>
+          </div>
+          <p class="step-hint" id="aiStep2Hint">Add the prompt above first.</p>
+
+          <div class="step-body">
+            <input id="aiShotInput" class="visually-hidden" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true">
+            <button class="btn ghost" type="button" id="aiAddShotsBtn">Add screenshots</button>
+            <p class="step-note">One image per screen or page. JPEG, PNG, GIF, or WebP &mdash; up to 12.</p>
+            <div class="shot-grid" id="aiShotGrid"></div>
+
+            <div class="key-row" id="aiKeyRow">
+              <label class="key-label" for="aiKeyInput">Anthropic API key</label>
+              <input id="aiKeyInput" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+              <button class="btn ghost small" type="button" id="aiKeySaveBtn">Save</button>
+            </div>
+            <p class="key-note" id="aiKeyNote">Stored in this browser only, never sent anywhere but Anthropic. Each run costs a few cents against your own account.</p>
+
+            <div class="module-action-bar">
+              <button class="btn" type="button" id="aiRunBtn">Evaluate adherence</button>
+              <span class="module-status" id="aiRunStatus"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-result" id="aiResult">
+          <div class="score-head">
+            <div class="score-num" id="aiScoreNum">-<small>/7</small></div>
+            <div class="score-label" id="aiScoreLabel"></div>
+          </div>
+          <div class="ai-output" id="aiOutput"></div>
+          <div class="copy-row">
+            <span class="copied" id="aiCopied">Copied</span>
+            <button class="btn ghost small" type="button" id="aiCopyBtn">Copy</button>
+          </div>
+        </div>
       </section>
 
     </main>
@@ -1133,6 +1403,13 @@ const GATES = {
   }
 };
 
+const PERCEPTION_TERMS = {
+  "Aesthetic & visual appeal": "visual appeal",
+  "Functionality": "functionality",
+  "Usability": "usability",
+  "Prompt adherence": "prompt adherence"
+};
+
 const state = {gates:{}, perceptions:{}};
 Object.keys(DATA).forEach(cat=>{
   state[cat] = DATA[cat].items.map(()=>({rating:null, note:''}));
@@ -1201,6 +1478,7 @@ catNames.forEach((cat, ci)=>{
   html += `
     <div class="perception-block">
       <p class="perception-label">Your overall perceptions</p>
+      <p class="perception-hint">Write one sentence summing up your first impression of ${PERCEPTION_TERMS[cat]}.</p>
       <input type="text" class="perception-input" id="perception-${ci}" placeholder="e.g. Feels polished but the hierarchy needs work.">
     </div>`;
   if(GATES[cat]){
@@ -1526,6 +1804,373 @@ function selectTool(ti){
   syncStuck();
 }
 toolLinks.forEach(l=>{ l.onclick = ()=>selectTool(l.dataset.tool); });
+</script>
+
+<script type="module">
+/* ---- AI mode: judge screenshots against the prompt with Claude ------- */
+
+const KEY_STORE = 'anthropic_api_key';
+const MAX_SHOTS = 12;
+const MAX_EDGE = 1568;          // matches the model's long-edge limit; avoids paying for detail it discards
+const SDK_URL = 'https://esm.sh/@anthropic-ai/sdk';
+
+const el = (id)=>document.getElementById(id);
+const step1 = el('aiStep1'), step2 = el('aiStep2');
+const promptInput = el('aiPromptInput'), promptStatus = el('aiPromptStatus');
+const shotGrid = el('aiShotGrid'), shotInput = el('aiShotInput');
+const keyInput = el('aiKeyInput'), keyNote = el('aiKeyNote');
+const runBtn = el('aiRunBtn'), runStatus = el('aiRunStatus');
+const resultBox = el('aiResult'), outputBox = el('aiOutput');
+const scoreNum = el('aiScoreNum'), scoreLabel = el('aiScoreLabel');
+
+const shots = [];               // {id, name, mediaType, base64, url}
+let savedPrompt = '';
+let running = false;
+let AnthropicCtor = null;
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function readKey(){
+  try{ return localStorage.getItem(KEY_STORE) || ''; }catch(e){ return ''; }
+}
+function writeKey(v){
+  try{ v ? localStorage.setItem(KEY_STORE, v) : localStorage.removeItem(KEY_STORE); }catch(e){}
+}
+
+function setStatus(node, msg, isErr){
+  node.textContent = msg;
+  node.classList.toggle('err', !!isErr);
+}
+
+/* ---- Step 1 ---------------------------------------------------------- */
+
+function unlockStep2(){
+  step2.classList.remove('locked');
+  el('aiStep2Hint').textContent = '';
+}
+
+el('aiPromptSaveBtn').onclick = ()=>{
+  const v = promptInput.value.trim();
+  if(!v){
+    setStatus(promptStatus, 'Paste the prompt first.', true);
+    step2.classList.add('locked');
+    el('aiStep2Hint').textContent = 'Add the prompt above first.';
+    return;
+  }
+  savedPrompt = v;
+  setStatus(promptStatus, 'Prompt set. Add the screens below.', false);
+  unlockStep2();
+  step2.scrollIntoView({behavior:'smooth', block:'nearest'});
+};
+
+promptInput.addEventListener('input', ()=>{
+  // Editing after continuing keeps step 2 open but re-syncs what gets sent.
+  if(savedPrompt) savedPrompt = promptInput.value.trim();
+});
+
+/* ---- Step 2: screenshots -------------------------------------------- */
+
+// Downscale in-browser: keeps requests well under the 32 MB cap and avoids
+// paying for resolution the model discards anyway.
+function toDownscaledJpeg(file){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      let {naturalWidth:w, naturalHeight:h} = img;
+      if(w > MAX_EDGE || h > MAX_EDGE){
+        const scale = MAX_EDGE / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const base64 = dataUrl.split(',')[1];
+      if(!base64) reject(new Error('Could not read that image.'));
+      else resolve({base64, url:dataUrl});
+    };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read ' + file.name));
+    };
+    img.src = url;
+  });
+}
+
+function renderShots(){
+  shotGrid.innerHTML = shots.map((s, i)=>`
+    <div class="shot">
+      <img src="${s.url}" alt="Screen ${i+1}: ${esc(s.name)}">
+      <div class="shot-bar">
+        <span class="shot-name">Screen ${i+1}</span>
+        <button class="shot-drop" type="button" data-drop="${s.id}" aria-label="Remove screen ${i+1}">&times;</button>
+      </div>
+    </div>`).join('');
+}
+
+shotGrid.onclick = (e)=>{
+  const btn = e.target.closest('[data-drop]');
+  if(!btn) return;
+  const i = shots.findIndex(s=>s.id === btn.dataset.drop);
+  if(i > -1) shots.splice(i, 1);
+  renderShots();
+  setStatus(runStatus, '', false);
+};
+
+el('aiAddShotsBtn').onclick = ()=> shotInput.click();
+
+shotInput.addEventListener('change', async ()=>{
+  const files = Array.from(shotInput.files || []);
+  shotInput.value = '';
+  if(!files.length) return;
+
+  const room = MAX_SHOTS - shots.length;
+  if(room <= 0){
+    setStatus(runStatus, `That's the ${MAX_SHOTS}-screen limit. Remove one to add another.`, true);
+    return;
+  }
+
+  setStatus(runStatus, 'Reading images…', false);
+  for(const file of files.slice(0, room)){
+    try{
+      const {base64, url} = await toDownscaledJpeg(file);
+      shots.push({id: crypto.randomUUID(), name: file.name, mediaType: 'image/jpeg', base64, url});
+    } catch(err){
+      setStatus(runStatus, err.message, true);
+    }
+  }
+  renderShots();
+  if(files.length > room){
+    setStatus(runStatus, `Added ${room} — that's the ${MAX_SHOTS}-screen limit.`, true);
+  } else if(!runStatus.classList.contains('err')){
+    setStatus(runStatus, '', false);
+  }
+});
+
+/* ---- API key --------------------------------------------------------- */
+
+function paintKeyState(){
+  const k = readKey();
+  keyInput.value = k;
+  if(k){
+    keyNote.textContent = 'Key saved in this browser. Clear the field and press Save to forget it.';
+    keyNote.classList.add('saved');
+  } else {
+    keyNote.textContent = 'Stored in this browser only, never sent anywhere but Anthropic. Each run costs a few cents against your own account.';
+    keyNote.classList.remove('saved');
+  }
+}
+el('aiKeySaveBtn').onclick = ()=>{
+  writeKey(keyInput.value.trim());
+  paintKeyState();
+};
+paintKeyState();
+
+/* ---- The evaluation -------------------------------------------------- */
+
+const RUBRIC = `Rank the design by how completely it satisfies the explicit request, necessary implied expectations, constraints, and supplied references. Do not reward unrequested extras or penalize missing optional enhancements. 1 = unusable, 4 = acceptable, 7 = excellent.`;
+
+const SYSTEM = `You are a design reviewer judging how faithfully a built design follows the prompt it was made from. You are shown the original prompt and screenshots of the finished result, one per screen or page, in order.
+
+Work through the prompt and break it into individual requirements — both explicitly stated ones and the expectations a competent designer would necessarily infer (output language, audience, deliverable conventions, stated goals, visual direction). Judge each against what the screenshots actually show.
+
+Verdicts:
+- "met" — the screenshots clearly show this satisfied.
+- "partial" — attempted but incomplete or weakly executed.
+- "missing" — the prompt asked for it and it is not there.
+- "unverifiable" — a static screenshot cannot settle it (responsive behaviour, working forms, runtime behaviour, link destinations, performance). Never guess these; mark them unverifiable and say what would settle it.
+
+Cite the screen number for anything you claim to see. Do not invent detail that is not visible. Judge only adherence to the prompt — not whether the design is good.
+
+Score with this rubric: ${RUBRIC} Unverifiable items must not drag the score down; score on what you could actually check.`;
+
+const SCHEMA = {
+  type: 'object',
+  properties: {
+    overall_score: {type: 'integer', minimum: 1, maximum: 7},
+    score_rationale: {type: 'string', description: 'One or two sentences justifying the score against the rubric.'},
+    summary: {type: 'string', description: 'A short paragraph on how faithfully the result follows the prompt, leading with what is missing.'},
+    requirements: {
+      type: 'array',
+      description: 'Every requirement drawn from the prompt, most consequential first.',
+      items: {
+        type: 'object',
+        properties: {
+          requirement: {type: 'string'},
+          kind: {type: 'string', enum: ['explicit', 'implicit']},
+          verdict: {type: 'string', enum: ['met', 'partial', 'missing', 'unverifiable']},
+          evidence: {type: 'string', description: 'What in the screenshots settles this, or what would be needed to settle it.'},
+          screens: {type: 'array', items: {type: 'integer'}, description: '1-based screen numbers supporting the verdict.'}
+        },
+        required: ['requirement', 'kind', 'verdict', 'evidence', 'screens'],
+        additionalProperties: false
+      }
+    }
+  },
+  required: ['overall_score', 'score_rationale', 'summary', 'requirements'],
+  additionalProperties: false
+};
+
+async function loadSDK(){
+  if(AnthropicCtor) return AnthropicCtor;
+  const mod = await import(SDK_URL);
+  AnthropicCtor = mod.default || mod.Anthropic;
+  if(!AnthropicCtor) throw new Error('Could not load the Anthropic SDK.');
+  return AnthropicCtor;
+}
+
+function buildContent(){
+  const content = [];
+  shots.forEach((s, i)=>{
+    content.push({type:'text', text:`Screen ${i+1}:`});
+    content.push({type:'image', source:{type:'base64', media_type:s.mediaType, data:s.base64}});
+  });
+  content.push({
+    type: 'text',
+    text: `Here is the prompt the design was built from:\n\n<prompt>\n${savedPrompt}\n</prompt>\n\nThe ${shots.length} screen${shots.length===1?'':'s'} above ${shots.length===1?'is':'are'} the finished result, in order. Evaluate how faithfully it follows the prompt.`
+  });
+  return content;
+}
+
+const SCORE_WORDS = {7:'Excellent', 6:'Very good', 5:'Good', 4:'Acceptable', 3:'Poor', 2:'Very poor', 1:'Unusable'};
+const VERDICT_ORDER = ['missing', 'partial', 'met', 'unverifiable'];
+const VERDICT_HEADS = {
+  missing: 'Missing',
+  partial: 'Partially met',
+  met: 'Met',
+  unverifiable: "Can't be judged from a screenshot"
+};
+
+function renderVerdict(data){
+  const reqs = Array.isArray(data.requirements) ? data.requirements : [];
+  const score = Number(data.overall_score);
+
+  if(Number.isFinite(score)){
+    scoreNum.innerHTML = esc(String(score)) + '<small>/7</small>';
+    scoreLabel.textContent = SCORE_WORDS[Math.round(score)] || '';
+  } else {
+    scoreNum.innerHTML = '-<small>/7</small>';
+    scoreLabel.textContent = '';
+  }
+
+  let html = '';
+  if(data.summary) html += `<p class="ai-summary">${esc(data.summary)}</p>`;
+  if(data.score_rationale) html += `<p class="ai-rationale">${esc(data.score_rationale)}</p>`;
+
+  VERDICT_ORDER.forEach(v=>{
+    const group = reqs.filter(r=>r && r.verdict === v);
+    if(!group.length) return;
+    html += `<div class="verdict-group"><p class="prompt-section-label">${esc(VERDICT_HEADS[v])} &middot; ${group.length}</p><ul class="verdict-list">`;
+    group.forEach(r=>{
+      const screens = Array.isArray(r.screens) ? r.screens.filter(n=>Number.isFinite(Number(n))) : [];
+      html += `<li>
+        <span class="verdict-tag ${esc(v)}">${esc(r.kind === 'implicit' ? 'implicit' : 'explicit')}</span>
+        <p class="verdict-req">${esc(r.requirement)}</p>
+        ${r.evidence ? `<p class="verdict-evidence">${esc(r.evidence)}</p>` : ''}
+        ${screens.length ? `<p class="verdict-screens">Screen ${screens.map(n=>esc(String(n))).join(', ')}</p>` : ''}
+      </li>`;
+    });
+    html += '</ul></div>';
+  });
+
+  outputBox.innerHTML = html || '<span class="empty-cat">Claude returned no requirements to report.</span>';
+  resultBox.classList.add('show');
+  resultBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function setRunning(on){
+  running = on;
+  runBtn.disabled = on;
+  runBtn.setAttribute('aria-busy', on ? 'true' : 'false');
+}
+
+runBtn.onclick = async ()=>{
+  if(running) return;
+
+  const key = readKey() || keyInput.value.trim();
+  const prompt = savedPrompt || promptInput.value.trim();
+
+  if(!prompt){ setStatus(runStatus, 'Add the prompt in step 1 first.', true); return; }
+  if(!shots.length){ setStatus(runStatus, 'Add at least one screenshot.', true); return; }
+  if(!key){ setStatus(runStatus, 'Add your Anthropic API key above.', true); keyInput.focus(); return; }
+
+  savedPrompt = prompt;
+  setRunning(true);
+  setStatus(runStatus, 'Loading…', false);
+
+  try{
+    const Anthropic = await loadSDK();
+    const client = new Anthropic({apiKey: key, dangerouslyAllowBrowser: true});
+
+    setStatus(runStatus, `Reading ${shots.length} screen${shots.length===1?'':'s'} against the prompt…`, false);
+
+    const stream = client.messages.stream({
+      model: 'claude-opus-5',
+      max_tokens: 16000,
+      thinking: {type: 'adaptive'},
+      system: SYSTEM,
+      messages: [{role: 'user', content: buildContent()}],
+      output_config: {format: {type: 'json_schema', schema: SCHEMA}}
+    });
+
+    const message = await stream.finalMessage();
+
+    if(message.stop_reason === 'refusal'){
+      setStatus(runStatus, 'Claude declined to evaluate this one.', true);
+      return;
+    }
+
+    const text = (message.content || [])
+      .filter(b=>b.type === 'text')
+      .map(b=>b.text)
+      .join('')
+      .trim();
+
+    let data;
+    try{
+      data = JSON.parse(text);
+    } catch(err){
+      outputBox.innerHTML = `<p class="ai-summary">${esc(text)}</p>`;
+      scoreNum.innerHTML = '-<small>/7</small>';
+      scoreLabel.textContent = '';
+      resultBox.classList.add('show');
+      setStatus(runStatus, 'Returned an unexpected shape — showing the raw reply.', true);
+      return;
+    }
+
+    renderVerdict(data);
+    setStatus(runStatus, '', false);
+
+  } catch(err){
+    const status = err && err.status;
+    let msg = (err && err.message) || 'Something went wrong.';
+    if(status === 401) msg = 'That API key was rejected. Check it and save again.';
+    else if(status === 429) msg = 'Rate limited or out of credit — wait a moment and retry.';
+    else if(status === 400) msg = 'The request was rejected: ' + msg;
+    else if(status >= 500) msg = 'Anthropic had a server error — retry in a moment.';
+    else if(/Failed to fetch|NetworkError|dynamically imported/i.test(msg)) msg = 'Could not reach the API. Check your connection and try again.';
+    setStatus(runStatus, msg, true);
+  } finally {
+    setRunning(false);
+  }
+};
+
+el('aiCopyBtn').onclick = ()=>{
+  const text = outputBox.innerText.trim();
+  if(!text) return;
+  const head = scoreNum.innerText.trim() + ' ' + scoreLabel.textContent.trim();
+  navigator.clipboard.writeText(head + '\n\n' + text).then(()=>{
+    const msg = el('aiCopied');
+    msg.classList.add('show');
+    setTimeout(()=>msg.classList.remove('show'), 1500);
+  });
+};
 </script>
 </body>
 </html>

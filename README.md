@@ -7,6 +7,36 @@ dimensions: **Aesthetic & visual appeal**, **Functionality**, **Usability**, and
 It's a self-contained `index.html` — no build step, no dependencies. All CSS and JS
 are inline; the only external requests are Google Fonts.
 
+## The three tools
+
+1. **Decode a prompt** — paste a prompt (or OCR one from a screenshot) and it
+   extracts explicit requirements, implicit ones, and flags worth weighing.
+2. **Evaluate a design** — the manual checklist: rate concepts Strong/Weak
+   across four categories, get a 1–7 score and a prose write-up.
+3. **AI mode** — paste the prompt, upload the screens it produced, and Claude
+   judges prompt adherence against them.
+
+### AI mode and your API key
+
+AI mode is the only part that calls out to a model. It uses the official
+[Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript)
+loaded from a CDN, running in the browser with `dangerouslyAllowBrowser`, and
+calls `claude-opus-5` with adaptive thinking and a JSON-schema structured
+output.
+
+**Your key never touches this repo or any server of ours.** It is stored in
+`localStorage` in your own browser and sent only to `api.anthropic.com`. Each
+run bills your own Anthropic account (a few cents, driven mostly by how many
+screens you upload). Clear the key field and press Save to forget it.
+
+Screenshots are downscaled to a 1568px long edge in the browser before being
+sent, which keeps requests well under the API's size cap and avoids paying for
+resolution the model discards.
+
+Requirements a static screenshot cannot settle — responsive behaviour, working
+forms, link destinations — are reported as **"can't be judged from a
+screenshot"** rather than guessed at, and don't drag the score down.
+
 ## What it does
 
 - **Rating checklist** — each dimension has a set of concepts you rate Strong / Weak,
