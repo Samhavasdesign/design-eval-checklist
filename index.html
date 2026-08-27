@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Design Evaluation Toolkit</title>
+<title>AI Design Evaluation Toolkit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -346,13 +346,7 @@
     font-family:'Newsreader', serif;
     font-size:18px;
     font-weight:500;
-    margin:0 0 4px;
-  }
-  .perception-hint{
-    font-size:12px;
-    color:var(--ink-soft);
     margin:0 0 10px;
-    line-height:1.5;
   }
   .perception-input{
     width:100%;
@@ -483,7 +477,7 @@
   }
   .module-action-bar{
     display:flex;
-    justify-content:space-between;
+    justify-content:flex-start;
     align-items:center;
     margin-top:12px;
     gap:12px;
@@ -602,7 +596,7 @@
     .btn.small{min-height:44px;font-size:11px;padding:11px 12px;}
     .cat-action-bar{flex-direction:column;align-items:stretch;gap:14px;}
     .cat-action-bar .btn{width:100%;}
-    .module-action-bar{flex-direction:column-reverse;align-items:stretch;gap:10px;}
+    .module-action-bar{flex-direction:column;align-items:stretch;gap:10px;}
     .module-action-bar .btn{width:100%;}
     .score-head{flex-wrap:wrap;padding:16px 16px 12px;gap:6px 12px;}
     .report{padding:16px;}
@@ -617,7 +611,7 @@
 
   <header>
     <div>
-      <h1>Design evaluation toolkit</h1>
+      <h1>AI Design evaluation toolkit</h1>
       <p>Decode a prompt, then evaluate the design against it</p>
     </div>
   </header>
@@ -647,8 +641,8 @@
             <button class="btn ghost" type="button" id="uploadShotBtn">Upload a screenshot</button>
           </div>
           <div class="module-action-bar">
+            <button class="btn" id="analyzeBtn">Evaluate</button>
             <span class="module-status" id="promptStatus"></span>
-            <button class="btn" id="analyzeBtn">Find what it's looking for</button>
           </div>
           <div class="prompt-result" id="promptResult">
             <div class="prompt-output" id="promptOutput" aria-live="polite"></div>
@@ -1044,7 +1038,7 @@ screenshotInput.addEventListener('change', async ()=>{
     }
     promptInput.value = text;
     promptInput.focus();
-    promptStatus.textContent = 'Text extracted. Review it, then find what it\'s looking for.';
+    promptStatus.textContent = '';
   } catch(err){
     promptStatus.classList.add('err');
     promptStatus.textContent = err && err.message ? err.message : 'Couldn\'t scan that screenshot.';
@@ -1077,81 +1071,49 @@ const DATA = {
     ]
   },
   "Functionality": {
-    note: "Much less subjective. Does it actually work.",
+    note: "Much less subjective: does it actually work? Consolidated from 19 checks to 10 — overlapping ones (overflow/clipping/scrolling, navigation/routing, feedback/state) were merged, and items that were really usability (affordance, discoverability, predictability) moved to that category.",
     items: [
-      ["Core functionality","Does the main experience actually work?","complete, operational","broken, incomplete"],
-      ["Navigation","Can users move through the site?","functional, predictable","dead, incorrect, confusing"],
-      ["Controls","Do buttons, toggles, etc. work?","responsive, operational","dead, unresponsive"],
-      ["Affordance","Does something look interactive when it is?","obvious, intuitive","ambiguous, misleading"],
-      ["Interaction feedback","Does the system acknowledge an action?","immediate, clear","absent, ambiguous"],
-      ["State changes","Are active/selected/open states handled correctly?","clear, persistent","missing, inconsistent"],
-      ["Forms","Can information actually be entered and submitted?","complete, usable","incomplete, broken"],
-      ["Validation","Does it handle invalid input?","helpful, clear","absent, incorrect"],
-      ["Error handling","What happens when something fails?","graceful, recoverable","blocking, silent"],
-      ["Responsiveness","Does it adapt across available screen sizes?","stable, adaptive","broken, overflowing"],
-      ["Overflow","Does content remain inside its boundaries?","contained","overflowing"],
-      ["Clipping","Is content accidentally cut off?","fully visible","clipped, truncated"],
-      ["Scrolling","Can users reach all content?","accessible, smooth","blocked, trapped"],
-      ["Routing","Do links and actions lead to the correct destination?","accurate","misdirected"],
-      ["Persistence","Does state remain when expected?","stable, persistent","unexpectedly reset"],
-      ["Discoverability","Can users find available functionality?","apparent, accessible","obscure, hidden"],
-      ["Predictability","Does behavior match normal expectations?","intuitive, conventional","surprising, inconsistent"],
-      ["Runtime stability","Does the site load and remain usable?","stable, reliable","crashes, fails, errors"],
-      ["Functional completeness","Is the experience genuinely implemented?","fully functional","superficial, simulated"]
+      ["Core functionality","Is the main experience genuinely built and working, not stubbed, faked, or half-implemented?","complete, real, operational","broken, superficial, simulated"],
+      ["Runtime stability","Does it load and stay usable without crashing or throwing errors?","stable, reliable","crashes, errors, fails"],
+      ["Navigation & routing","Do links and actions take users to the right place?","accurate, predictable","dead, misdirected, confusing"],
+      ["Controls","Do buttons, toggles, and inputs respond and do what they say?","responsive, operational","dead, unresponsive"],
+      ["Feedback & state","Are actions acknowledged, and do active / selected / open states update correctly?","immediate, clear, consistent","absent, ambiguous, stuck"],
+      ["Forms & validation","Can data be entered, validated, and submitted without loss?","complete, usable, forgiving","broken, unvalidated, lossy"],
+      ["Error handling","When something fails, does it fail gracefully and recoverably?","graceful, recoverable","blocking, silent"],
+      ["Responsiveness","Does the layout adapt across screen sizes without breaking?","stable, adaptive","broken, overflowing"],
+      ["Layout containment","Does content stay within its bounds, avoid clipping, and remain fully reachable by scroll?","contained, complete, reachable","overflowing, clipped, trapped"],
+      ["Persistence","Does state survive reloads and navigation when it should?","stable, persistent","unexpectedly reset"]
     ]
   },
   "Usability": {
-    note: "Distinct from functionality. Could this work exactly as coded and still have this problem? If yes, it's usability.",
+    note: "Distinct from functionality: could this work exactly as coded and still frustrate someone? Consolidated from 28 checks to 13 — near-synonyms were merged (clarity/scanability/learnability, feedback/status/state, the four error checks, reachability/placement/target size, efficiency/flow/friction).",
     items: [
-      ["Clarity","Is it obvious what the user can or should do?","clear, self-explanatory, intuitive","confusing, ambiguous, unclear"],
-      ["Discoverability","Can users find the features and actions they need?","apparent, visible, easy to locate","hidden, obscure, buried"],
-      ["Efficiency","Can the workflow be completed without unnecessary effort?","streamlined, direct, efficient","cumbersome, tedious, indirect"],
-      ["Affordance","Does an element visually suggest how it behaves?","recognizable, intuitive, conventional","misleading, ambiguous, deceptive"],
-      ["Expectation matching","Does the interface behave the way its appearance suggests?","predictable, conventional, intuitive","surprising, contradictory, misleading"],
-      ["Feedback","Does the interface tell users what happened after an action?","immediate, visible, informative","absent, delayed, ambiguous"],
-      ["System status","Can users tell what the interface is currently doing?","transparent, apparent, communicated","opaque, uncertain"],
-      ["Current state","Can users tell what is selected, open, or active?","distinct, persistent, obvious","unclear, invisible, inconsistent"],
-      ["Orientation","Does the user understand where they are?","grounded, contextual, navigable","disorienting, contextless"],
-      ["Information architecture","Is content organized in a way that makes sense?","logical, intuitive, structured","arbitrary, fragmented, confusing"],
-      ["Prioritization","Are the most important actions easiest to find and use?","focused, appropriately emphasized","competing, buried, overemphasized"],
-      ["Label clarity","Do labels clearly communicate what controls do?","descriptive, concise, unambiguous","vague, cryptic, misleading"],
-      ["Scanability","Can users quickly understand their options?","scannable, digestible, structured","dense, overwhelming, undifferentiated"],
-      ["Cognitive load","How much mental effort does the interface require?","simple, focused, manageable","overwhelming, demanding, complex"],
-      ["Recognition vs. recall","Does the interface show users their options rather than making them remember things?","visible, recognizable, contextual","memory-dependent, hidden"],
-      ["Workflow continuity","Does each step naturally lead to the next?","seamless, coherent, progressive","disjointed, interrupted, dead-ended"],
-      ["Error prevention","Does the design help users avoid mistakes?","preventative, constrained, guided","error-prone, ambiguous"],
-      ["Error messaging","If users make a mistake, do they understand what happened?","specific, actionable, contextual","vague, generic, absent"],
-      ["Error recovery","Can users recover easily after something goes wrong?","recoverable, forgiving, reversible","blocking, destructive, irreversible"],
-      ["Forgiveness","Does the interface protect users from accidental actions?","reversible, safe, forgiving","unforgiving, risky"],
-      ["Reachability","Can users actually access important controls?","accessible, reachable, unobstructed","obstructed, inaccessible, off-screen"],
-      ["Control placement","Are actions located where users would expect them?","conventional, contextual, logical","disconnected, unexpected"],
-      ["Target size","Are interactive elements easy to select?","comfortably sized, accessible","tiny, fiddly, difficult"],
-      ["Consistency","Do similar interactions behave similarly?","predictable, consistent","inconsistent, unpredictable"],
-      ["User control","Does the user feel in control of the experience?","flexible, reversible, user-controlled","restrictive, trapping"],
-      ["Defaults","Do initial choices help rather than hinder?","sensible, helpful, appropriate","arbitrary, risky, inconvenient"],
-      ["Overall learnability","Can a new user understand the interface quickly?","intuitive, approachable, learnable","confusing, unfamiliar, demanding"],
-      ["Overall friction","How much unnecessary resistance does the user encounter?","frictionless, streamlined","high-friction, cumbersome"]
+      ["Clarity","Is it obvious what you can do and how, at a glance, without study?","clear, self-explanatory, scannable","confusing, opaque, demanding"],
+      ["Cognitive load","Does it keep demands on attention and memory low, showing options rather than making you recall them?","light, focused, recognizable","overwhelming, memory-dependent"],
+      ["Affordance","Do controls look like what they do and behave the way their appearance implies?","recognizable, predictable","misleading, surprising"],
+      ["Feedback & status","Are actions acknowledged, and is the current or in-progress state visible (loading, selected, open, active)?","immediate, visible, communicated","absent, opaque, uncertain"],
+      ["Information architecture","Is content organized logically, and do you always know where you are?","logical, structured, grounded","arbitrary, fragmented, disorienting"],
+      ["Discoverability & emphasis","Are the actions you need findable, with the important ones most prominent?","apparent, well-prioritized","buried, competing, flat"],
+      ["Label clarity","Do labels say plainly what controls do?","descriptive, concise, unambiguous","vague, cryptic, misleading"],
+      ["Efficiency & flow","Can the task be completed directly, each step leading to the next, without unnecessary friction?","streamlined, coherent, direct","cumbersome, disjointed, tedious"],
+      ["Control access","Are important controls reachable, where you'd expect, and comfortably sized to hit?","reachable, conventional, comfortable","obstructed, misplaced, fiddly"],
+      ["Consistency","Do similar things look and behave the same way throughout?","predictable, uniform","inconsistent, erratic"],
+      ["Error prevention","Does the design steer you away from mistakes, with destructive actions guarded?","preventative, guarded, guided","error-prone, risky"],
+      ["Error recovery","When something goes wrong, is the message clear and the way back easy and reversible?","specific, actionable, reversible","vague, blocking, irreversible"],
+      ["User control","Do you stay in control — sensible defaults, reversible actions, no dead ends or forced paths?","flexible, reversible, forgiving","restrictive, trapping, arbitrary"]
     ]
   },
   "Prompt adherence": {
-    note: "Strong doesn't mean good design. It means faithful to what was actually asked.",
+    note: "Strong means faithful to what was actually asked, not good design. Consolidated from 16 checks to 8 — overlapping ones were merged (completeness/features, accuracy/explicit, content/naming/language/substitution, scope/additions, constraints/contradiction).",
     items: [
-      ["Completeness","Did it include everything requested?","complete, comprehensive","partial, omitted"],
-      ["Accuracy","Did it implement requirements correctly?","accurate, faithful","incorrect, misrepresented"],
-      ["Explicit requirements","Did it follow directly stated instructions?","satisfied, fulfilled","violated, omitted"],
-      ["Constraints","Did it respect limits and rules?","compliant","violated"],
-      ["Structure","Does organization match what was requested?","faithful, aligned","reorganized, divergent"],
-      ["Content fidelity","Is the actual requested content there?","exact, faithful","altered, substituted"],
-      ["Feature adherence","Were requested features implemented?","implemented, complete","missing, partial"],
-      ["Naming fidelity","Were specified names and labels preserved?","exact, consistent","renamed, altered"],
-      ["Language","Did it use the requested language?","correct, consistent","incorrect, mixed"],
-      ["Scope","Did it build the appropriate amount?","appropriately scoped","overbuilt, underbuilt"],
-      ["Unrequested additions","Did it invent unnecessary things?","restrained, relevant","distracting, conflicting"],
-      ["Substitution","Did it replace a requested thing with something else?","faithful","substituted"],
-      ["Interpretation","Was ambiguity handled reasonably?","reasonable, defensible","unsupported, unjustified"],
-      ["Materiality","How consequential is the difference?","minor, immaterial","material, substantial"],
-      ["Contradiction","Does anything directly oppose an instruction?","aligned","contradictory"],
-      ["Overall faithfulness","How closely does the result represent the requested outcome?","faithful, aligned","divergent"]
+      ["Explicit requirements","Were the stated instructions followed, and followed correctly?","satisfied, accurate","violated, misimplemented"],
+      ["Completeness","Is every requested feature and element present?","complete, comprehensive","partial, omitted"],
+      ["Constraints","Are stated limits and rules respected, with nothing contradicting an instruction?","compliant, aligned","violated, contradictory"],
+      ["Verbatim fidelity","Are requested content, names, labels, and language preserved exactly, not paraphrased or swapped?","exact, faithful","altered, substituted, renamed"],
+      ["Structure","Does the organization follow what was requested?","faithful, aligned","reorganized, divergent"],
+      ["Scope","Was the right amount built — nothing invented or padded, nothing left underbuilt?","appropriately scoped","overbuilt, underbuilt, padded"],
+      ["Interpretation","Was genuine ambiguity resolved reasonably and defensibly?","reasonable, defensible","unsupported, unjustified"],
+      ["Overall faithfulness","Taken together, how close is the result to what was asked, and do the differences matter?","faithful, immaterial","divergent, material"]
     ]
   }
 };
@@ -1169,13 +1131,6 @@ const GATES = {
     overrideText: "The prompt doesn't ask for anything specifically, the response's delivery is beyond expected.",
     scoreOverride: 7
   }
-};
-
-const PERCEPTION_TERMS = {
-  "Aesthetic & visual appeal": "visual appeal",
-  "Functionality": "functionality",
-  "Usability": "usability",
-  "Prompt adherence": "prompt adherence"
 };
 
 const state = {gates:{}, perceptions:{}};
@@ -1246,7 +1201,6 @@ catNames.forEach((cat, ci)=>{
   html += `
     <div class="perception-block">
       <p class="perception-label">Your overall perceptions</p>
-      <p class="perception-hint">Write one sentence summing up your first impression of ${PERCEPTION_TERMS[cat]}.</p>
       <input type="text" class="perception-input" id="perception-${ci}" placeholder="e.g. Feels polished but the hierarchy needs work.">
     </div>`;
   if(GATES[cat]){
