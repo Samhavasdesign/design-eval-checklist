@@ -5,20 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Design Evaluation Toolkit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f3efe4;
-    --paper-2:#ece5d3;
-    --ink:#2b2620;
-    --ink-soft:#6b6255;
-    --red:#a83b28;
-    --green:#41603f;
-    --line:#d8cfba;
-    --line-strong:#96805a;
-    --amber-bg:#efe0c9;
-    --amber-border:#8f6f2c;
-    --focus:#1d5fae;
+    --paper:#FAF7F0;
+    --surface:#FFFFFF;
+    --board:#EDE8DC;
+    --ink:#17150F;
+    --ink-soft:#6A6459;
+    --ink-muted:#8C8577;
+    --accent:#1A6FE0;
+    --accent-ink:#FFF8F2;
+    --strong:#0E8F5E;
+    --weak:#D8420F;
+    --weak-ink:#B8360C;
+    --highlight:#FFD84D;
+    --rule:#E4DECF;
+    --focus:#1A6FE0;
+    --font:'Space Grotesk', Helvetica, Arial, sans-serif;
+    --text-eyebrow:15px;
+    --text-sm:16px;
+    --text-base:18px;
+    --text-lg:19px;
+    --text-xl:22px;
+    --text-h3:24px;
+    --text-h2:32px;
+    --text-h1:48px;
+    --text-score:52px;
+    --weight-body:500;
+    --weight-bold:700;
+    --leading-tight:1.05;
+    --leading-body:1.55;
+    --tracking-tight:-0.03em;
+    --tracking-heading:-0.02em;
+    --tracking-caps:0.06em;
+    --tracking-eyebrow:0.1em;
+    --border:3px;
+    --hairline:2px;
+    --shadow-offset:5px 5px 0 var(--ink);
+    --shadow-press:3px 3px 0 var(--ink);
+    --nudge:translate(2px, 2px);
+    --tap-min:44px;
+    --transition:120ms ease;
   }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
@@ -26,151 +55,158 @@
     margin:0;
     background:var(--paper);
     color:var(--ink);
-    font-family:'JetBrains Mono', monospace;
+    font-family:var(--font);
+    font-weight:var(--weight-body);
     -webkit-font-smoothing:antialiased;
     overflow-wrap:break-word;
   }
+  ::selection{background:var(--highlight);color:var(--ink);}
   button{-webkit-tap-highlight-color:transparent;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{color:var(--ink);}
   a:focus-visible,
   button:focus-visible,
   input:focus-visible,
   textarea:focus-visible,
   [tabindex]:focus-visible{
     outline:3px solid var(--focus);
-    outline-offset:2px;
+    outline-offset:3px;
   }
-  .wrap{max-width:1180px;margin:0 auto;padding:36px 28px 80px;}
+  .wrap{
+    max-width:1160px;
+    margin:0 auto;
+    padding:56px 40px 120px;
+  }
   .shell{
     display:grid;
-    grid-template-columns:240px minmax(0,1fr);
-    gap:40px;
+    grid-template-columns:290px minmax(0,1fr);
+    gap:44px;
     align-items:start;
   }
   .sidenav{
     position:sticky;
-    top:16px;
+    top:32px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
   }
   .tool-link{
-    display:block;
+    display:flex;
+    align-items:center;
+    gap:12px;
     width:100%;
     text-align:left;
-    font-family:'JetBrains Mono', monospace;
-    background:var(--paper-2);
-    border:1px solid var(--line-strong);
-    padding:14px 16px;
-    margin-bottom:8px;
+    font-family:inherit;
+    background:var(--surface);
+    border:var(--border) solid var(--ink);
+    padding:20px 22px;
     cursor:pointer;
-    color:var(--ink-soft);
+    color:var(--ink);
     appearance:none;
     -webkit-appearance:none;
+    transition:box-shadow var(--transition), background var(--transition), color var(--transition);
   }
-  .tool-link:hover{background:var(--line);}
+  .tool-link:hover{background:var(--board);}
   .tool-link.active,
   .tool-link.active:hover{
-    background:var(--ink);
+    background:var(--accent);
     border-color:var(--ink);
-    color:var(--paper);
+    color:var(--accent-ink);
+    box-shadow:var(--shadow-offset);
+  }
+  .tool-dot{
+    flex:0 0 auto;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    border:var(--border) solid var(--ink);
+    background:transparent;
+    display:block;
+  }
+  .tool-link.active .tool-dot{
+    border-color:var(--accent-ink);
+    background:var(--accent-ink);
   }
   .tool-name{
     display:flex;
     align-items:center;
     flex-wrap:wrap;
     gap:8px;
-    font-family:'Newsreader', serif;
-    font-size:17px;
-    font-weight:500;
-    letter-spacing:0;
-    text-transform:none;
-    color:var(--ink);
-  }
-  .tool-link.active .tool-name{color:var(--paper);}
-  .sparkle-icon{
-    flex:0 0 auto;
-    width:15px;
-    height:15px;
-    display:block;
+    font-size:21px;
+    font-weight:var(--weight-bold);
+    letter-spacing:-0.015em;
+    line-height:1.2;
     color:inherit;
   }
   .beta-mark{
-    font-family:'JetBrains Mono', monospace;
-    font-size:10px;
-    font-weight:500;
-    letter-spacing:0.1em;
-    color:var(--red);
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-eyebrow);
+    text-transform:uppercase;
+    color:var(--weak);
   }
   .tool-link.active .beta-mark{
-    color:var(--paper);
-    opacity:0.7;
+    color:var(--accent-ink);
+    opacity:0.8;
   }
   .tool-view{display:none;}
   .tool-view.active{display:block;}
-  .tool-header{margin-bottom:24px;}
+  .tool-header{margin-bottom:30px;}
   .tool-header h2{
-    font-family:'Newsreader', serif;
-    font-weight:500;
-    font-size:22px;
-    letter-spacing:-0.01em;
-    margin:0 0 6px;
+    font-weight:var(--weight-bold);
+    font-size:var(--text-h2);
+    letter-spacing:-0.025em;
+    line-height:1.15;
+    margin:0;
   }
   .tool-title-ai{
     display:flex;
     align-items:baseline;
+    flex-wrap:wrap;
     gap:10px;
   }
-  .tool-title-ai .sparkle-icon{
-    width:18px;
-    height:18px;
-    position:relative;
-    top:1px;
-  }
   .tool-title-ai .beta-mark{
-    font-size:11px;
-    letter-spacing:0.12em;
+    font-size:var(--text-eyebrow);
+    position:relative;
+    top:-2px;
   }
   .tool-header p{
-    margin:0;
-    max-width:60ch;
-    font-size:13px;
-    line-height:1.6;
+    margin:12px 0 0;
+    max-width:56ch;
+    font-size:var(--text-base);
+    line-height:var(--leading-body);
+    font-weight:var(--weight-body);
     color:var(--ink-soft);
   }
-  @media (max-width:860px){
-    .shell{grid-template-columns:1fr;gap:24px;}
-    .sidenav{position:static;display:flex;flex-wrap:wrap;gap:8px;}
-    .tool-link{flex:1 1 240px;width:auto;margin-bottom:0;}
-  }
-  header{
-    border-bottom:2px solid var(--ink);
-    padding-bottom:18px;
-    margin-bottom:24px;
+  .ai-subnav{
     display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    flex-wrap:wrap;
-    gap:12px;
+    margin:0 0 28px;
+    padding:0 0 16px;
+    border-bottom:var(--border) solid var(--ink);
+  }
+  .ai-subnav .tabs{
+    flex:0 1 auto;
+  }
+  .ai-pane{display:none;}
+  .ai-pane.active{display:block;}
+  .ai-pane[hidden]{display:none;}
+  header{
+    border-bottom:var(--border) solid var(--ink);
+    padding-bottom:26px;
+    margin-bottom:44px;
   }
   header h1{
-    font-family:'Newsreader', serif;
-    font-weight:500;
-    font-size:30px;
-    margin:0 0 4px;
-    letter-spacing:-0.01em;
+    font-weight:var(--weight-bold);
+    font-size:var(--text-h1);
+    line-height:var(--leading-tight);
+    margin:0;
+    letter-spacing:var(--tracking-tight);
   }
   header p{
-    margin:0;
-    font-size:12px;
+    margin:14px 0 0;
+    font-size:var(--text-lg);
+    font-weight:var(--weight-body);
     color:var(--ink-soft);
-    letter-spacing:0.02em;
-  }
-  .stamp{
-    font-size:12px;
-    color:var(--red);
-    border:1px solid var(--red);
-    padding:4px 10px;
-    transform:rotate(-2deg);
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    white-space:nowrap;
   }
   .topnav{
     position:sticky;
@@ -182,9 +218,9 @@
     align-items:flex-start;
     gap:12px 16px;
     flex-wrap:wrap;
-    padding:12px 0;
-    margin-bottom:22px;
-    border-bottom:1px solid var(--line-strong);
+    padding:8px 0 16px;
+    margin-bottom:8px;
+    border-bottom:var(--border) solid var(--ink);
   }
   .topnav .btn{flex:0 0 auto;align-self:flex-start;margin-left:auto;}
   .topnav.stuck{align-items:center;}
@@ -194,7 +230,7 @@
   .topnav.stuck .tab.active::after{
     content:"\25BE";
     margin-left:10px;
-    font-size:10px;
+    font-size:12px;
     vertical-align:1px;
   }
   .topnav.stuck.menu-open .tab.active::after{content:"\25B4";}
@@ -205,9 +241,9 @@
     left:0;
     margin-top:-1px;
     min-width:min(300px, 82vw);
-    background:var(--paper);
-    border:1px solid var(--line-strong);
-    box-shadow:0 8px 22px rgba(43,38,32,0.16);
+    background:var(--surface);
+    border:var(--border) solid var(--ink);
+    box-shadow:var(--shadow-offset);
     z-index:30;
   }
   .topnav.stuck.menu-open .nav-menu{display:block;}
@@ -215,298 +251,390 @@
     display:block;
     width:100%;
     text-align:left;
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    letter-spacing:0.03em;
+    font-family:inherit;
+    font-size:var(--text-sm);
+    font-weight:var(--weight-bold);
+    letter-spacing:0.05em;
     text-transform:uppercase;
-    padding:11px 16px;
-    background:var(--paper);
+    padding:14px 18px;
+    min-height:var(--tap-min);
+    background:var(--surface);
     border:none;
-    border-bottom:1px solid var(--line);
+    border-bottom:var(--hairline) solid var(--rule);
     color:var(--ink-soft);
     cursor:pointer;
     appearance:none;
     -webkit-appearance:none;
   }
   .nav-menu-item:last-child{border-bottom:none;}
-  .nav-menu-item:hover{background:var(--line);}
-  .nav-menu-item.current{background:var(--ink);color:var(--paper);}
+  .nav-menu-item:hover{background:var(--board);color:var(--ink);}
+  .nav-menu-item.current{background:var(--accent);color:var(--accent-ink);}
   .tabs{
     display:flex;
-    gap:2px;
+    gap:12px;
     flex-wrap:wrap;
     flex:1 1 auto;
   }
   .tab{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    letter-spacing:0.03em;
+    font-family:inherit;
+    font-size:var(--text-sm);
+    font-weight:var(--weight-bold);
+    letter-spacing:0.05em;
     text-transform:uppercase;
-    padding:10px 16px;
-    background:var(--paper-2);
-    border:1px solid var(--line-strong);
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    padding:14px 18px;
+    min-height:var(--tap-min);
+    background:var(--surface);
+    border:var(--border) solid var(--ink);
     cursor:pointer;
     color:var(--ink-soft);
     appearance:none;
     -webkit-appearance:none;
+    transition:box-shadow var(--transition), background var(--transition), color var(--transition);
   }
-  .tab:hover{background:var(--line);}
+  .tab:hover{background:var(--board);color:var(--ink);}
   .tab.active{
-    background:var(--ink);
-    color:var(--paper);
+    background:var(--accent);
+    color:var(--accent-ink);
     border-color:var(--ink);
   }
-  .tab.active:hover{background:var(--ink);}
-  .tab .score-chip{
-    margin-left:8px;
-    background:var(--red);
+  .tab.active:hover{background:var(--accent);color:var(--accent-ink);}
+  .score-chip{
+    display:none;
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    padding:4px 9px;
+    background:var(--ink);
     color:var(--paper);
-    padding:2px 7px;
-    border-radius:3px;
-    font-size:12px;
-    font-weight:600;
+    letter-spacing:0;
+    text-transform:none;
+  }
+  .score-chip.show{display:inline-block;}
+  .tab.active .score-chip{
+    background:var(--accent-ink);
+    color:var(--ink);
   }
   .panel{display:none;}
   .panel.active{display:block;}
   .gate-row{
     display:flex;
     align-items:center;
-    gap:12px;
-    background:var(--amber-bg);
-    border:1px solid var(--amber-border);
-    padding:12px 16px;
-    margin-bottom:16px;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    background:var(--highlight);
+    border:var(--border) solid var(--ink);
+    padding:16px 20px;
+    margin:18px 0 8px;
   }
   .gate-q{
-    font-size:12px;
-    letter-spacing:0.02em;
+    font-size:var(--text-base);
+    font-weight:var(--weight-bold);
     color:var(--ink);
     flex:1;
   }
-  .gate-seg button{
-    padding:6px 14px;
-  }
-  .gate-seg button:hover{background:var(--line);}
-  .gate-seg button[data-g="Y"].on{background:var(--red);color:var(--paper);font-weight:700;}
-  .gate-seg button[data-g="N"].on{background:var(--green);color:var(--paper);font-weight:700;}
-  .gate-seg button.on::after{content:" \2713";}
   .gate-banner{
     display:none;
-    font-size:12px;
-    color:var(--red);
-    font-style:italic;
-    font-family:'Newsreader', serif;
-    margin:-8px 0 16px;
+    font-size:var(--text-sm);
+    font-weight:var(--weight-body);
+    color:var(--weak-ink);
+    margin:10px 0 8px;
+    line-height:1.5;
   }
   .gate-banner.show{display:block;}
   .concept-list.dimmed{opacity:0.35;pointer-events:none;}
   .concept{
-    border-bottom:1px solid var(--line);
-    padding:14px 0;
+    border-bottom:var(--hairline) solid var(--rule);
+    padding:24px 0;
     display:grid;
-    grid-template-columns:1fr auto;
-    gap:10px 16px;
-    align-items:start;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:16px 24px;
+    align-items:center;
   }
   .concept-label{
-    font-family:'Newsreader', serif;
-    font-size:16px;
-    font-weight:500;
-    margin:0 0 2px;
+    font-size:var(--text-xl);
+    font-weight:var(--weight-bold);
+    letter-spacing:-0.015em;
+    margin:0;
   }
   .concept-q{
-    font-size:12px;
+    font-size:17px;
+    font-weight:var(--weight-body);
     color:var(--ink-soft);
-    margin:0;
+    margin:6px 0 0;
     line-height:1.5;
+    max-width:70ch;
   }
   .controls{
     display:flex;
     flex-direction:column;
     align-items:flex-end;
-    gap:6px;
+    gap:8px;
   }
   .seg{
     display:flex;
-    border:1px solid var(--ink);
   }
   .seg button{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    letter-spacing:0.04em;
+    font-family:inherit;
+    font-size:var(--text-sm);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-caps);
     text-transform:uppercase;
-    padding:7px 12px;
-    background:var(--paper);
-    border:none;
-    border-right:1px solid var(--ink);
+    padding:13px 20px;
+    min-height:var(--tap-min);
+    background:var(--surface);
+    border:var(--border) solid var(--ink);
     cursor:pointer;
     color:var(--ink-soft);
+    white-space:nowrap;
+    appearance:none;
+    -webkit-appearance:none;
   }
-  .seg button:last-child{border-right:none;}
-  .seg button:hover{background:var(--line);}
-  .seg button.sel-strong.on{background:var(--green);color:var(--paper);font-weight:700;}
-  .seg button.sel-weak.on{background:var(--red);color:var(--paper);font-weight:700;}
-  .seg button.on:hover{background:var(--ink);}
-  .seg button.on::after{content:" \2713";}
+  .seg button + button{margin-left:calc(var(--border) * -1);}
+  .seg button:hover{color:var(--ink);}
+  .seg button.sel-strong.on,
+  .seg button[data-g="N"].on{
+    background:var(--strong);
+    color:var(--accent-ink);
+  }
+  .seg button.sel-weak.on,
+  .seg button[data-g="Y"].on{
+    background:var(--weak);
+    color:var(--accent-ink);
+  }
   .extra-row{
     grid-column:1 / -1;
     display:none;
-    gap:8px;
+    gap:10px;
     align-items:center;
     flex-wrap:wrap;
   }
   .extra-row.show{display:flex;}
   .note-label{
-    font-size:12px;
-    letter-spacing:0.03em;
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-eyebrow);
     text-transform:uppercase;
     color:var(--ink-soft);
   }
   .note-input{
     flex:1;
     min-width:220px;
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    padding:6px 8px;
-    border:1px solid var(--line-strong);
-    background:#fff;
+    font-family:inherit;
+    font-size:var(--text-base);
+    font-weight:var(--weight-body);
+    padding:12px 14px;
+    border:var(--border) solid var(--ink);
+    background:var(--surface);
     color:var(--ink);
+    outline:none;
+    border-radius:0;
   }
-  .note-input::placeholder{color:var(--ink-soft);}
+  .note-input::placeholder{color:var(--ink-muted);}
+  .note-input:focus{box-shadow:var(--shadow-offset);}
   .perception-block{
-    margin-bottom:24px;
-    padding-bottom:18px;
-    border-bottom:1px dashed var(--line-strong);
+    padding:32px 0 8px;
   }
   .perception-label{
-    font-family:'Newsreader', serif;
-    font-size:18px;
-    font-weight:500;
-    margin:0 0 4px;
+    font-size:var(--text-h3);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-heading);
+    margin:0;
   }
   .perception-hint{
-    font-size:12px;
+    font-size:var(--text-base);
+    font-weight:var(--weight-body);
     color:var(--ink-soft);
-    margin:0 0 10px;
+    margin:10px 0 16px;
     line-height:1.5;
   }
   .perception-input{
     width:100%;
-    font-family:'Newsreader', serif;
-    font-size:15px;
-    padding:10px 12px;
-    border:1px solid var(--line-strong);
-    background:#fff;
+    font-family:inherit;
+    font-size:var(--text-base);
+    font-weight:var(--weight-body);
+    padding:18px 20px;
+    border:var(--border) solid var(--ink);
+    background:var(--surface);
     color:var(--ink);
+    outline:none;
+    border-radius:0;
   }
-  .perception-input::placeholder{color:var(--ink-soft);font-family:'JetBrains Mono', monospace;font-size:12px;}
+  .perception-input::placeholder{color:var(--ink-muted);}
+  .perception-input:focus{box-shadow:var(--shadow-offset);}
   .cat-action-bar{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-top:22px;
-    padding-top:16px;
-    border-top:2px solid var(--ink);
+    margin-top:8px;
+    padding-top:24px;
+    border-top:var(--border) solid var(--ink);
     flex-wrap:wrap;
-    gap:12px;
+    gap:18px;
   }
-  .tally{font-size:12px;color:var(--ink-soft);}
-  .tally b{color:var(--ink);}
-  .tally .g{color:var(--green);}
-  .tally .r{color:var(--red);}
+  .tally{
+    font-size:var(--text-base);
+    font-weight:600;
+    color:var(--ink-soft);
+  }
+  .tally b{color:var(--ink);font-weight:var(--weight-bold);}
+  .tally .g{color:var(--strong);font-weight:var(--weight-bold);}
+  .tally .r{color:var(--weak);font-weight:var(--weight-bold);}
   .btn{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    letter-spacing:0.03em;
+    font-family:inherit;
+    font-size:17px;
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-caps);
     text-transform:uppercase;
-    padding:10px 20px;
-    background:var(--ink);
-    color:var(--paper);
-    border:1px solid var(--ink);
+    padding:15px 26px;
+    min-height:var(--tap-min);
+    background:var(--accent);
+    color:var(--accent-ink);
+    border:var(--border) solid var(--ink);
+    box-shadow:var(--shadow-offset);
     cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    transition:transform 100ms ease, box-shadow 100ms ease, background var(--transition), color var(--transition);
   }
-  .btn:hover{background:#453d33;border-color:#453d33;}
+  .btn:hover{
+    background:var(--accent);
+    color:var(--accent-ink);
+    transform:var(--nudge);
+    box-shadow:var(--shadow-press);
+  }
   .btn.ghost{
     background:transparent;
     color:var(--ink);
+    box-shadow:none;
   }
-  .btn.ghost:hover{background:var(--line);}
-  .btn.small{padding:6px 12px;font-size:12px;}
+  .btn.ghost:hover{
+    background:var(--ink);
+    color:var(--paper);
+    transform:none;
+    box-shadow:none;
+  }
+  .btn.small{
+    font-size:var(--text-sm);
+    padding:12px 20px;
+  }
   .btn:disabled{
-    opacity:0.55;
+    opacity:0.45;
     cursor:not-allowed;
     pointer-events:none;
+    box-shadow:none;
+    transform:none;
   }
   .label-short{display:none;}
   #resetBtn{display:none;}
   #resetBtn.show{display:inline-block;}
-  .score-card{
+  .score-card,
+  .prompt-result,
+  .ai-result{
     display:none;
-    margin-top:18px;
-    background:#fff;
-    border:1px solid var(--line-strong);
+    margin-top:36px;
+    background:var(--surface);
+    border:var(--border) solid var(--ink);
     scroll-margin-top:86px;
   }
-  .score-card.show{display:block;}
+  .score-card.show,
+  .prompt-result.show,
+  .ai-result.show{display:block;}
   .score-head{
     display:flex;
     align-items:baseline;
-    gap:14px;
-    padding:18px 22px 14px;
-    border-bottom:1px solid var(--line);
+    gap:12px;
+    flex-wrap:wrap;
+    padding:26px 32px;
+    border-bottom:var(--border) solid var(--ink);
   }
   .score-num{
-    font-family:'Newsreader', serif;
-    font-size:38px;
-    font-weight:500;
-    color:var(--red);
+    font-size:var(--text-score);
+    font-weight:var(--weight-bold);
+    letter-spacing:-0.04em;
+    color:var(--ink);
     line-height:1;
   }
-  .score-num small{font-size:16px;color:var(--ink-soft);}
-  .score-label{
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:0.05em;
+  .score-num small{
+    font-size:22px;
+    font-weight:600;
     color:var(--ink-soft);
+    letter-spacing:0;
   }
+  .score-label{
+    font-size:var(--text-sm);
+    font-weight:var(--weight-bold);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:6px 12px;
+    border:var(--border) solid var(--ink);
+    color:var(--ink);
+  }
+  .score-label:empty{display:none;}
   .report{
-    font-family:'Newsreader', serif;
-    font-size:16px;
-    line-height:1.7;
+    font-size:var(--text-lg);
+    font-weight:var(--weight-body);
+    line-height:1.6;
     white-space:pre-wrap;
-    padding:20px 22px;
+    padding:28px 32px;
   }
-  .report .empty-cat{color:var(--ink-soft);font-style:italic;font-size:14px;}
+  .report .empty-cat,
+  .prompt-output .empty-cat,
+  .ai-output .empty-cat{
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size:var(--text-base);
+  }
   .copy-row{
     display:flex;
     justify-content:flex-end;
-    gap:8px;
-    padding:0 22px 18px;
+    gap:12px;
+    padding:18px 32px;
     align-items:center;
+    border-top:var(--hairline) solid var(--rule);
   }
-  .copied{color:var(--green);font-size:12px;opacity:0;transition:opacity 0.2s;}
+  .prompt-result .copy-row{
+    border-top:var(--border) solid var(--ink);
+  }
+  .copied{
+    font-size:var(--text-sm);
+    font-weight:600;
+    color:var(--ink-soft);
+    opacity:0;
+    transition:opacity 200ms ease;
+  }
   .copied.show{opacity:1;}
-  .prompt-module{
-    padding-bottom:12px;
-  }
-  .prompt-textarea{
+  .prompt-module{padding-bottom:12px;}
+  .prompt-textarea,
+  .key-input{
     width:100%;
-    min-height:140px;
-    font-family:'JetBrains Mono', monospace;
-    font-size:13px;
-    padding:14px;
-    border:1px solid var(--line-strong);
-    background:#fff;
+    font-family:inherit;
+    font-size:var(--text-base);
+    font-weight:var(--weight-body);
+    line-height:1.6;
+    padding:20px;
+    border:var(--border) solid var(--ink);
+    background:var(--surface);
     color:var(--ink);
     resize:vertical;
-    line-height:1.5;
+    outline:none;
+    border-radius:0;
   }
-  .prompt-textarea::placeholder{color:var(--ink-soft);}
-  .prompt-upload{
-    margin-top:8px;
+  .prompt-textarea{
+    min-height:200px;
+    display:block;
   }
-  .prompt-upload .btn{width:100%;}
-  .prompt-upload input{
+  .prompt-textarea::placeholder,
+  .key-input::placeholder,
+  .perception-input::placeholder,
+  .note-input::placeholder{
+    color:var(--ink-muted);
+  }
+  .prompt-textarea:focus,
+  .key-input:focus{box-shadow:var(--shadow-offset);}
+  .visually-hidden{
     position:absolute;
     width:1px;
     height:1px;
@@ -521,120 +649,148 @@
     display:flex;
     justify-content:flex-start;
     align-items:center;
-    margin-top:12px;
-    gap:12px;
+    margin-top:20px;
+    gap:14px;
     flex-wrap:wrap;
   }
   .module-status{
-    font-size:12px;
+    font-size:var(--text-sm);
+    font-weight:var(--weight-body);
     color:var(--ink-soft);
-    font-style:italic;
+    width:100%;
   }
-  .module-status.err{color:var(--red);font-style:normal;}
-  .prompt-result{
-    display:none;
-    margin-top:18px;
-    background:#fff;
-    border:1px solid var(--line-strong);
-  }
-  .prompt-result.show{display:block;}
+  .module-status.err{color:var(--weak);font-style:normal;}
   .prompt-output{
-    padding:20px 22px 8px;
-  }
-  .prompt-output .empty-cat{
-    color:var(--ink-soft);
-    font-style:italic;
-    font-size:14px;
+    padding:32px 32px 8px;
   }
   .prompt-section-label{
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-eyebrow);
     text-transform:uppercase;
-    letter-spacing:0.06em;
     color:var(--ink-soft);
-    margin:16px 0 8px;
-  }
-  .prompt-section-label:first-child{margin-top:0;}
-  .prompt-list{
-    font-family:'Newsreader', serif;
-    font-size:16px;
-    line-height:1.6;
-    padding-left:22px;
     margin:0;
   }
-  .prompt-list li{margin-bottom:8px;}
-  .prompt-list.ranked{list-style:decimal;}
-  .prompt-list:not(.ranked):not(.flags){list-style:disc;}
-  .prompt-list.flags{list-style:none;padding-left:0;}
+  .prompt-section-label:has(+ .flags){color:var(--weak);}
+  .prompt-list{
+    list-style:none;
+    margin:16px 0 32px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    font-size:var(--text-base);
+    line-height:1.5;
+    font-weight:var(--weight-body);
+  }
+  .prompt-list:last-of-type{margin-bottom:8px;}
+  .prompt-list li{
+    display:grid;
+    grid-template-columns:14px minmax(0,1fr);
+    gap:14px;
+    align-items:start;
+    margin:0;
+  }
+  .prompt-list.explicit li::before,
+  .prompt-list.ranked li::before{
+    content:"";
+    width:10px;
+    height:10px;
+    background:var(--ink);
+    margin-top:9px;
+  }
+  .prompt-list.ranked{
+    counter-reset:req;
+  }
+  .prompt-list.ranked li::before{
+    counter-increment:req;
+    content:counter(req);
+    width:auto;
+    height:auto;
+    background:none;
+    font-weight:var(--weight-bold);
+    font-size:var(--text-eyebrow);
+    letter-spacing:0.04em;
+    margin-top:3px;
+  }
+  .prompt-list.implicit li::before{
+    content:"";
+    width:10px;
+    height:10px;
+    border:var(--border) solid var(--ink);
+    background:transparent;
+    margin-top:7px;
+    box-sizing:border-box;
+  }
   .prompt-list.flags li{
-    position:relative;
-    padding-left:22px;
-    color:var(--red);
+    color:var(--weak-ink);
+    font-weight:600;
   }
   .prompt-list.flags li::before{
-    content:"\25B2";
-    position:absolute;
-    left:0;
-    font-size:11px;
-    top:0.35em;
+    content:"";
+    width:0;
+    height:0;
+    border-left:7px solid transparent;
+    border-right:7px solid transparent;
+    border-bottom:11px solid var(--weak);
+    margin-top:8px;
+    background:none;
   }
 
-  /* ---- AI mode ------------------------------------------------------ */
-  .visually-hidden{
-    position:absolute;
-    width:1px;height:1px;
-    padding:0;margin:-1px;
-    overflow:hidden;
-    clip:rect(0,0,0,0);
-    white-space:nowrap;
-    border:0;
-  }
   .step{
-    border-top:1px solid var(--line-strong);
-    padding:20px 0 24px;
+    border-top:var(--border) solid var(--ink);
+    padding:28px 0 32px;
   }
   .step:first-of-type{border-top:none;padding-top:0;}
   .step-head{
     display:flex;
     align-items:baseline;
-    gap:10px;
-    margin-bottom:12px;
+    gap:12px;
+    margin-bottom:16px;
   }
   .step-num{
-    font-size:12px;
-    letter-spacing:0.08em;
-    color:var(--ink-soft);
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-eyebrow);
+    text-transform:uppercase;
+    color:var(--ink-muted);
   }
   .step-title{
-    font-family:'Newsreader', serif;
-    font-size:18px;
-    font-weight:500;
+    font-size:var(--text-h3);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-heading);
     margin:0;
   }
   .step-hint{
     display:none;
-    font-size:12px;
+    font-size:var(--text-base);
     color:var(--ink-soft);
-    font-style:italic;
     margin:0;
   }
   .step.locked .step-hint{display:block;}
   .step.locked .step-body{display:none;}
   .step-note{
-    font-size:12px;
+    font-size:var(--text-sm);
     color:var(--ink-soft);
-    margin:8px 0 0;
+    margin:10px 0 0;
     line-height:1.5;
+  }
+  .step-lede{
+    font-size:var(--text-sm);
+    color:var(--ink-soft);
+    margin:0 0 16px;
+    line-height:1.5;
+    max-width:56ch;
   }
   .shot-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
     gap:12px;
-    margin-top:14px;
+    margin-top:16px;
   }
   .shot{
-    border:1px solid var(--line-strong);
-    background:#fff;
+    border:var(--border) solid var(--ink);
+    background:var(--surface);
     padding:8px;
   }
   .shot img{
@@ -643,213 +799,238 @@
     height:110px;
     object-fit:cover;
     object-position:top;
-    background:var(--paper-2);
+    background:var(--board);
   }
   .shot-bar{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:8px;
-    margin-top:7px;
+    margin-top:8px;
   }
   .shot-name{
-    font-size:12px;
+    font-size:var(--text-sm);
+    font-weight:600;
     color:var(--ink-soft);
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
   }
   .shot-drop{
-    font-family:'JetBrains Mono', monospace;
-    font-size:14px;
+    font-family:inherit;
+    font-size:18px;
     line-height:1;
-    padding:4px 7px;
+    padding:4px 8px;
+    min-width:var(--tap-min);
+    min-height:var(--tap-min);
     background:transparent;
-    border:1px solid var(--line-strong);
+    border:var(--border) solid var(--ink);
     color:var(--ink-soft);
     cursor:pointer;
     flex:0 0 auto;
   }
-  .shot-drop:hover{background:var(--line);color:var(--red);}
+  .shot-drop:hover{background:var(--ink);color:var(--paper);}
   .key-row{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:12px;
     flex-wrap:wrap;
-    margin-top:20px;
+    margin-top:24px;
   }
   .key-label{
-    font-size:12px;
-    letter-spacing:0.03em;
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-eyebrow);
     text-transform:uppercase;
     color:var(--ink-soft);
   }
   .key-input{
     flex:1;
     min-width:220px;
-    font-family:'JetBrains Mono', monospace;
-    font-size:12px;
-    padding:8px 10px;
-    border:1px solid var(--line-strong);
-    background:#fff;
-    color:var(--ink);
+    padding:12px 14px;
+    min-height:var(--tap-min);
+    resize:none;
   }
   .key-note{
-    font-size:12px;
+    font-size:var(--text-sm);
     color:var(--ink-soft);
     line-height:1.5;
     margin:8px 0 0;
     max-width:60ch;
   }
-  .key-note.saved{color:var(--green);}
-  .ai-result{
-    display:none;
-    margin-top:22px;
-    background:#fff;
-    border:1px solid var(--line-strong);
-  }
-  .ai-result.show{display:block;}
-  .ai-output{padding:20px 22px 8px;}
+  .key-note.saved{color:var(--strong);}
+  .ai-output{padding:28px 32px 8px;}
   .ai-summary{
-    font-family:'Newsreader', serif;
-    font-size:16px;
-    line-height:1.7;
-    margin:0 0 6px;
+    font-size:var(--text-lg);
+    line-height:1.6;
+    font-weight:var(--weight-body);
+    margin:0 0 8px;
   }
   .ai-rationale{
-    font-family:'Newsreader', serif;
-    font-size:15px;
+    font-size:var(--text-base);
     font-style:italic;
     line-height:1.6;
     color:var(--ink-soft);
     margin:0;
   }
-  .verdict-group{margin-top:20px;}
+  .verdict-group{margin-top:24px;}
   .verdict-list{
     list-style:none;
     padding:0;
-    margin:0;
+    margin:12px 0 0;
   }
   .verdict-list li{
     display:grid;
     grid-template-columns:auto 1fr;
-    gap:4px 10px;
-    padding:10px 0;
-    border-bottom:1px solid var(--line);
+    gap:6px 12px;
+    padding:14px 0;
+    border-bottom:var(--hairline) solid var(--rule);
   }
   .verdict-list li:last-child{border-bottom:none;}
   .verdict-tag{
-    font-size:12px;
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
     letter-spacing:0.04em;
     text-transform:uppercase;
-    padding:2px 7px;
-    border:1px solid currentColor;
+    padding:4px 8px;
+    border:var(--border) solid currentColor;
     align-self:start;
     white-space:nowrap;
   }
-  .verdict-tag.met{color:var(--green);}
-  .verdict-tag.partial{color:var(--amber-border);}
-  .verdict-tag.missing{color:var(--red);}
+  .verdict-tag.met{color:var(--strong);}
+  .verdict-tag.partial{color:#8F6F2C;}
+  .verdict-tag.missing{color:var(--weak);}
   .verdict-tag.unverifiable{color:var(--ink-soft);}
+  .verdict-tag.hi{color:var(--strong);}
+  .verdict-tag.mid{color:#8F6F2C;}
+  .verdict-tag.lo{color:var(--weak);}
   .verdict-req{
-    font-family:'Newsreader', serif;
-    font-size:16px;
-    line-height:1.5;
+    font-size:var(--text-base);
+    font-weight:var(--weight-bold);
+    line-height:1.45;
     margin:0;
   }
   .verdict-evidence{
     grid-column:2;
-    font-size:12px;
+    font-size:var(--text-sm);
     color:var(--ink-soft);
     line-height:1.5;
     margin:0;
   }
   .verdict-screens{
     grid-column:2;
-    font-size:12px;
-    color:var(--ink-soft);
-    letter-spacing:0.03em;
+    font-size:var(--text-eyebrow);
+    font-weight:var(--weight-bold);
+    letter-spacing:var(--tracking-caps);
+    text-transform:uppercase;
+    color:var(--ink-muted);
     margin:0;
   }
 
-  /* ---- Mobile ------------------------------------------------------- */
-  @media (max-width:600px){
-    .wrap{padding:20px 16px 56px;}
-    header{padding-bottom:14px;margin-bottom:18px;}
-    header h1{font-size:24px;}
+  @media (max-width:759px){
+    :root{
+      --text-h1:30px;
+      --text-h2:26px;
+      --text-h3:22px;
+      --text-lg:17px;
+      --text-base:17px;
+      --text-score:42px;
+    }
+    .wrap{padding:28px 20px 88px;}
+    header{padding-bottom:18px;margin-bottom:26px;}
+    header p{margin-top:10px;}
+    .shell{grid-template-columns:1fr;gap:28px;}
+    .sidenav{
+      position:static;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .tool-link{padding:14px 16px;}
+    .tool-link:last-child{grid-column:1 / -1;}
+    .tool-name{font-size:17px;letter-spacing:-0.01em;}
+    .tool-dot{width:13px;height:13px;}
+    .tool-header{margin-bottom:22px;}
+    .tool-header p{margin-top:10px;}
 
-    /* Two tools read as a segmented control */
-    .sidenav{gap:0;}
-    .tool-link{flex:1 1 0;min-width:0;padding:12px 10px;min-height:52px;border-right-width:0;}
-    .tool-link:last-child{border-right-width:1px;}
-    .tool-name{font-size:14px;margin-bottom:0;gap:6px;}
-    .sparkle-icon{width:13px;height:13px;}
-    .beta-mark{font-size:9px;}
-
-    /* Category nav is always the active pill plus a dropdown */
-    .topnav{padding:10px 0;gap:8px;align-items:center;flex-wrap:nowrap;}
+    .topnav{padding:4px 0 12px;gap:8px;align-items:center;}
     .topnav .btn{align-self:center;flex:0 0 auto;}
     .label-long{display:none;}
     .label-short{display:inline;}
-    .tabs{min-width:0;}
+    .tabs{min-width:0;gap:8px;}
     .tab{
-      font-size:11px;
+      font-size:var(--text-eyebrow);
       padding:11px 12px;
-      min-height:44px;
-      max-width:100%;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
     }
-    .tab:not(.active){display:none;}
-    .tab.active{cursor:pointer;}
-    .tab.active::after{
+    .topnav .tab:not(.active){display:none;}
+    .topnav .tab.active{cursor:pointer;}
+    .topnav .tab.active::after{
       content:"\25BE";
       margin-left:8px;
-      font-size:10px;
+      font-size:12px;
       vertical-align:1px;
     }
+    .ai-subnav{margin-bottom:22px;padding-bottom:12px;}
     .topnav.menu-open .tab.active::after{content:"\25B4";}
     .topnav.menu-open .nav-menu{display:block;}
     .nav-menu{left:0;right:0;min-width:0;}
-    .nav-menu-item{padding:14px 16px;min-height:48px;}
+    .nav-menu-item{padding:14px 16px;}
 
-    /* Rating rows stack, control spans the full width */
-    .concept{grid-template-columns:1fr;gap:10px;padding:16px 0;}
+    .concept{
+      grid-template-columns:1fr;
+      gap:14px;
+      padding:20px 0;
+    }
     .controls{align-items:stretch;width:100%;}
     .seg{width:100%;}
-    .seg button{flex:1 1 0;min-height:44px;padding:10px 8px;}
-    .gate-row{flex-wrap:wrap;padding:12px;}
+    .seg button{flex:1 1 0;padding:14px 12px;text-align:center;}
+    .gate-row{flex-direction:column;align-items:stretch;padding:14px 16px;}
     .gate-seg{width:100%;}
-    .gate-seg button{flex:1 1 0;min-height:44px;}
     .extra-row.show{flex-direction:column;align-items:stretch;gap:6px;}
-
-    /* 16px inputs so iOS Safari does not zoom on focus */
-    .note-input{width:100%;min-width:0;font-size:16px;padding:10px;}
-    .perception-input{font-size:16px;padding:13px 12px;}
-    .prompt-textarea{font-size:16px;}
-
-    .btn{min-height:44px;padding:12px 18px;}
-    .btn.small{min-height:44px;font-size:11px;padding:11px 12px;}
-    .cat-action-bar{flex-direction:column;align-items:stretch;gap:14px;}
+    .perception-block{padding:24px 0 4px;}
+    .perception-hint{margin:8px 0 14px;}
+    .perception-input,
+    .note-input,
+    .prompt-textarea,
+    .key-input{
+      font-size:16px;
+      padding:15px 16px;
+    }
+    .prompt-textarea{min-height:180px;}
+    .btn{width:100%;padding:16px 20px;}
+    .btn.small{width:auto;}
+    .cat-action-bar{flex-direction:column;align-items:stretch;}
     .cat-action-bar .btn{width:100%;}
-    .module-action-bar{flex-direction:column;align-items:stretch;gap:10px;}
+    .module-action-bar{flex-direction:column;align-items:stretch;gap:12px;margin-top:16px;}
     .module-action-bar .btn{width:100%;}
-    .score-head{flex-wrap:wrap;padding:16px 16px 12px;gap:6px 12px;}
-    .report{padding:16px;}
-    .prompt-output{padding:16px 16px 8px;}
-    .copy-row{padding:0 16px 16px;}
-    .score-card{scroll-margin-top:76px;}
-
-    .shot-grid{grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));gap:10px;}
-    .shot-drop{min-width:44px;min-height:44px;font-size:16px;}
-    .key-input{font-size:16px;min-width:0;width:100%;flex:1 1 100%;padding:12px 10px;}
+    .score-head{padding:20px;}
+    .score-num small{font-size:20px;}
+    .report{padding:20px;font-size:var(--text-base);}
+    .prompt-output,
+    .ai-output{padding:22px 20px 6px;}
+    .copy-row{
+      padding:16px 20px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+    .score-card,
+    .prompt-result,
+    .ai-result{margin-top:28px;scroll-margin-top:76px;}
+    .shot-grid{grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));}
+    .key-input{min-width:0;width:100%;flex:1 1 100%;}
     .key-row .btn{width:100%;}
-    .ai-output{padding:16px 16px 8px;}
     .verdict-list li{grid-template-columns:1fr;}
     .verdict-tag{justify-self:start;}
     .verdict-evidence,
     .verdict-screens{grid-column:1;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *, *::before, *::after{
+      transition:none !important;
+      animation:none !important;
+    }
+    .btn:hover{transform:none;box-shadow:var(--shadow-offset);}
   }
 </style>
 </head>
@@ -867,19 +1048,16 @@
 
     <nav class="sidenav" id="sidenav" aria-label="Tools">
       <button class="tool-link active" type="button" data-tool="0" aria-current="page">
+        <span class="tool-dot" aria-hidden="true"></span>
         <span class="tool-name">Decode a prompt</span>
       </button>
       <button class="tool-link" type="button" data-tool="1">
+        <span class="tool-dot" aria-hidden="true"></span>
         <span class="tool-name">Evaluate a design</span>
       </button>
       <button class="tool-link" type="button" data-tool="2">
-        <span class="tool-name">
-          <svg class="sparkle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path fill="currentColor" d="M12 2.4c.28 2.04 1.32 3.9 2.9 5.36 1.5 1.48 3.4 2.48 5.5 2.74-2.1.26-4 1.26-5.5 2.74-1.58 1.46-2.62 3.32-2.9 5.36-.28-2.04-1.32-3.9-2.9-5.36C7.6 11.76 5.7 10.76 3.6 10.5c2.1-.26 4-1.26 5.5-2.74C10.68 6.3 11.72 4.44 12 2.4Z"/>
-            <path fill="currentColor" d="M19.1 15.15c.16 1 .66 1.9 1.42 2.58.74.7 1.68 1.16 2.7 1.3-1.02.14-1.96.6-2.7 1.3-.76.68-1.26 1.58-1.42 2.58-.16-1-.66-1.9-1.42-2.58-.74-.7-1.68-1.16-2.7-1.3 1.02-.14 1.96-.6 2.7-1.3.76-.68 1.26-1.58 1.42-2.58Z"/>
-          </svg>
-          AI Mode <span class="beta-mark">(BETA)</span>
-        </span>
+        <span class="tool-dot" aria-hidden="true"></span>
+        <span class="tool-name">AI Mode <span class="beta-mark">Beta</span></span>
       </button>
     </nav>
 
@@ -892,12 +1070,10 @@
         </div>
         <section class="prompt-module">
           <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..." aria-label="AI prompt to decode"></textarea>
-          <div class="prompt-upload">
-            <input id="screenshotInput" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
-            <button class="btn ghost" type="button" id="uploadShotBtn">Upload a screenshot</button>
-          </div>
+          <input id="screenshotInput" class="visually-hidden" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
           <div class="module-action-bar">
             <button class="btn" id="analyzeBtn">Evaluate</button>
+            <button class="btn ghost" type="button" id="uploadShotBtn">Upload a screenshot</button>
             <span class="module-status" id="promptStatus"></span>
           </div>
           <div class="prompt-result" id="promptResult">
@@ -926,63 +1102,108 @@
       <section class="tool-view" id="tool-2" aria-labelledby="tool-2-title">
         <div class="tool-header">
           <h2 id="tool-2-title" class="tool-title-ai">
-            <svg class="sparkle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path fill="currentColor" d="M12 2.4c.28 2.04 1.32 3.9 2.9 5.36 1.5 1.48 3.4 2.48 5.5 2.74-2.1.26-4 1.26-5.5 2.74-1.58 1.46-2.62 3.32-2.9 5.36-.28-2.04-1.32-3.9-2.9-5.36C7.6 11.76 5.7 10.76 3.6 10.5c2.1-.26 4-1.26 5.5-2.74C10.68 6.3 11.72 4.44 12 2.4Z"/>
-              <path fill="currentColor" d="M19.1 15.15c.16 1 .66 1.9 1.42 2.58.74.7 1.68 1.16 2.7 1.3-1.02.14-1.96.6-2.7 1.3-.76.68-1.26 1.58-1.42 2.58-.16-1-.66-1.9-1.42-2.58-.74-.7-1.68-1.16-2.7-1.3 1.02-.14 1.96-.6 2.7-1.3.76-.68 1.26-1.58 1.42-2.58Z"/>
-            </svg>
-            AI Mode <span class="beta-mark">(BETA)</span>
+            AI Mode <span class="beta-mark">Beta</span>
           </h2>
-          <p>Paste the prompt, upload the screens it produced, and Claude judges how faithfully the result follows the prompt.</p>
+          <p id="aiModeBlurb">Paste the prompt, upload the screens it produced, and Claude judges how faithfully the result follows the prompt.</p>
         </div>
 
-        <div class="step" id="aiStep1">
-          <div class="step-head">
-            <span class="step-num">01</span>
-            <h3 class="step-title">The prompt</h3>
-          </div>
-          <textarea id="aiPromptInput" class="prompt-textarea" placeholder="Paste the prompt the design was built from..." aria-label="Prompt the design was built from"></textarea>
-          <div class="module-action-bar">
-            <button class="btn" type="button" id="aiPromptSaveBtn">Continue</button>
-            <span class="module-status" id="aiPromptStatus"></span>
+        <div class="ai-subnav">
+          <div class="tabs" id="aiTabs" role="tablist" aria-label="AI evaluation type">
+            <button class="tab active" type="button" role="tab" id="aiTabAdherence" data-pane="adherence" aria-selected="true" aria-controls="aiPaneAdherence">Prompt Adherence</button>
+            <button class="tab" type="button" role="tab" id="aiTabAesthetics" data-pane="aesthetics" aria-selected="false" aria-controls="aiPaneAesthetics">Aesthetics</button>
           </div>
         </div>
 
-        <div class="step locked" id="aiStep2" aria-live="polite">
-          <div class="step-head">
-            <span class="step-num">02</span>
-            <h3 class="step-title">The screens</h3>
-          </div>
-          <p class="step-hint" id="aiStep2Hint">Add the prompt above first.</p>
-
-          <div class="step-body">
-            <input id="aiShotInput" class="visually-hidden" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true">
-            <button class="btn ghost" type="button" id="aiAddShotsBtn">Add screenshots</button>
-            <p class="step-note">One image per screen or page. JPEG, PNG, GIF, or WebP &mdash; up to 12.</p>
-            <div class="shot-grid" id="aiShotGrid"></div>
-
-            <div class="key-row" id="aiKeyRow">
-              <label class="key-label" for="aiKeyInput">Passcode</label>
-              <input id="aiKeyInput" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Shared passcode">
-              <button class="btn ghost small" type="button" id="aiKeySaveBtn">Save</button>
+        <div class="ai-pane active" id="aiPaneAdherence" role="tabpanel" aria-labelledby="aiTabAdherence">
+          <div class="step" id="aiStep1">
+            <div class="step-head">
+              <span class="step-num">01</span>
+              <h3 class="step-title">The prompt</h3>
             </div>
-            <p class="key-note" id="aiKeyNote">Remembered in this browser so you only enter it once.</p>
+            <textarea id="aiPromptInput" class="prompt-textarea" placeholder="Paste the prompt the design was built from..." aria-label="Prompt the design was built from"></textarea>
+            <div class="module-action-bar">
+              <button class="btn" type="button" id="aiPromptSaveBtn">Continue</button>
+              <span class="module-status" id="aiPromptStatus"></span>
+            </div>
+          </div>
+
+          <div class="step locked" id="aiStep2" aria-live="polite">
+            <div class="step-head">
+              <span class="step-num">02</span>
+              <h3 class="step-title">The screens</h3>
+            </div>
+            <p class="step-hint" id="aiStep2Hint">Add the prompt above first.</p>
+
+            <div class="step-body">
+              <input id="aiShotInput" class="visually-hidden" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true">
+              <button class="btn ghost" type="button" id="aiAddShotsBtn">Add screenshots</button>
+              <p class="step-note">One image per screen or page. JPEG, PNG, GIF, or WebP &mdash; up to 12.</p>
+              <div class="shot-grid" id="aiShotGrid"></div>
+
+              <div class="key-row" id="aiKeyRow">
+                <label class="key-label" for="aiKeyInput">Passcode</label>
+                <input id="aiKeyInput" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Shared passcode">
+                <button class="btn ghost small" type="button" id="aiKeySaveBtn">Save</button>
+              </div>
+              <p class="key-note" id="aiKeyNote">Remembered in this browser so you only enter it once.</p>
+
+              <div class="module-action-bar">
+                <button class="btn" type="button" id="aiRunBtn">Evaluate adherence</button>
+                <span class="module-status" id="aiRunStatus"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-result" id="aiResult">
+            <div class="score-head">
+              <div class="score-num" id="aiScoreNum">-<small>/7</small></div>
+              <div class="score-label" id="aiScoreLabel"></div>
+            </div>
+            <div class="ai-output" id="aiOutput"></div>
+            <div class="copy-row">
+              <span class="copied" id="aiCopied">Copied</span>
+              <button class="btn ghost small" type="button" id="aiCopyBtn">Copy</button>
+              <button class="btn ghost small" type="button" id="aiClearBtn">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-pane" id="aiPaneAesthetics" role="tabpanel" aria-labelledby="aiTabAesthetics" hidden>
+          <div class="step" id="aeStep1">
+            <div class="step-head">
+              <span class="step-num">01</span>
+              <h3 class="step-title">The screens</h3>
+            </div>
+            <p class="step-lede">Claude weighs the screens against the full aesthetic rubric, then reports the 3&ndash;4 points that matter most &mdash; weaknesses first, then any standout strengths.</p>
+            <input id="aeShotInput" class="visually-hidden" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true">
+            <button class="btn ghost" type="button" id="aeAddShotsBtn">Add screenshots</button>
+            <p class="step-note">One image per screen or page. JPEG, PNG, GIF, or WebP &mdash; up to 10.</p>
+            <div class="shot-grid" id="aeShotGrid"></div>
+
+            <div class="key-row" id="aeKeyRow">
+              <label class="key-label" for="aeKeyInput">Passcode</label>
+              <input id="aeKeyInput" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Shared passcode">
+              <button class="btn ghost small" type="button" id="aeKeySaveBtn">Save</button>
+            </div>
+            <p class="key-note" id="aeKeyNote">Remembered in this browser so you only enter it once.</p>
 
             <div class="module-action-bar">
-              <button class="btn" type="button" id="aiRunBtn">Evaluate adherence</button>
-              <span class="module-status" id="aiRunStatus"></span>
+              <button class="btn" type="button" id="aeRunBtn">Evaluate aesthetics</button>
+              <span class="module-status" id="aeRunStatus"></span>
             </div>
           </div>
-        </div>
 
-        <div class="ai-result" id="aiResult">
-          <div class="score-head">
-            <div class="score-num" id="aiScoreNum">-<small>/7</small></div>
-            <div class="score-label" id="aiScoreLabel"></div>
-          </div>
-          <div class="ai-output" id="aiOutput"></div>
-          <div class="copy-row">
-            <span class="copied" id="aiCopied">Copied</span>
-            <button class="btn ghost small" type="button" id="aiCopyBtn">Copy</button>
+          <div class="ai-result" id="aeResult">
+            <div class="score-head">
+              <div class="score-num" id="aeScoreNum">-<small>/7</small></div>
+              <div class="score-label" id="aeScoreLabel"></div>
+            </div>
+            <div class="ai-output" id="aeOutput"></div>
+            <div class="copy-row">
+              <span class="copied" id="aeCopied">Copied</span>
+              <button class="btn ghost small" type="button" id="aeCopyBtn">Copy</button>
+              <button class="btn ghost small" type="button" id="aeClearBtn">Clear</button>
+            </div>
           </div>
         </div>
       </section>
@@ -1199,11 +1420,11 @@ document.getElementById('analyzeBtn').onclick = ()=>{
     html += '<p class="prompt-section-label">Explicit requirements</p>';
     html += ranked
       ? '<ol class="prompt-list ranked">' + lis(items) + '</ol>'
-      : '<ul class="prompt-list">' + lis(items) + '</ul>';
+      : '<ul class="prompt-list explicit">' + lis(items) + '</ul>';
   }
   if(implicit.items.length){
     html += '<p class="prompt-section-label">Implicit requirements</p>';
-    html += '<ul class="prompt-list">' + lis(implicit.items) + '</ul>';
+    html += '<ul class="prompt-list implicit">' + lis(implicit.items) + '</ul>';
   }
   if(implicit.flags.length){
     html += '<p class="prompt-section-label">Flags &amp; watch-outs</p>';
@@ -1217,7 +1438,7 @@ document.getElementById('copyPromptBtn').onclick = ()=>{
   if(!text) return;
   navigator.clipboard.writeText(text).then(()=>{
     promptCopied.classList.add('show');
-    setTimeout(()=>promptCopied.classList.remove('show'), 1500);
+    setTimeout(()=>promptCopied.classList.remove('show'), 1600);
   });
 };
 
@@ -1370,7 +1591,7 @@ screenshotInput.addEventListener('change', async ()=>{
 
 <script>
 const DATA = {
-  "Aesthetic & visual appeal": {
+  "Aesthetics/Visual Appeal": {
     note: "Strong doesn't mean good taste here, it means the principle is executed with intent. Consolidated from 28 concepts down to 15; overlapping ones (e.g. focal point/flow into hierarchy, spacing/rhythm/whitespace into one) were merged so each item is actually distinct.",
     items: [
       ["Visual hierarchy","Is importance immediately clear, with an obvious place for the eye to start and move through the page?","clear, prioritized, intuitive","flat, muddled, disjointed"],
@@ -1441,11 +1662,6 @@ const DATA = {
 const SCORE_LABELS = {7:"Excellent",6:"Very good",5:"Good",4:"Acceptable",3:"Poor",2:"Very poor",1:"Unusable"};
 
 const GATES = {
-  "Aesthetic & visual appeal": {
-    question: "Failed to render",
-    overrideText: "N/A. Prototype failed to render.",
-    scoreOverride: null
-  },
   "Prompt adherence": {
     question: "The prompt was illegible",
     overrideText: "The prompt doesn't ask for anything specifically, the response's delivery is beyond expected.",
@@ -1454,7 +1670,7 @@ const GATES = {
 };
 
 const PERCEPTION_TERMS = {
-  "Aesthetic & visual appeal": "visual appeal",
+  "Aesthetics/Visual Appeal": "visual appeal",
   "Functionality": "functionality",
   "Usability": "usability",
   "Prompt adherence": "prompt adherence"
@@ -1475,7 +1691,7 @@ tabsEl.setAttribute('role','tablist');
 
 // The nav shows a single pill plus a dropdown when it is stuck to the top,
 // and always on mobile where four wrapping pills cost too much height.
-const mobileNav = window.matchMedia('(max-width:600px)');
+const mobileNav = window.matchMedia('(max-width:759px)');
 function navCollapsed(){
   return mobileNav.matches || topnavEl.classList.contains('stuck');
 }
@@ -1488,13 +1704,13 @@ function closeNavMenu(){
 
 function selectCategory(ci){
   ci = +ci;
-  document.querySelectorAll('.tab').forEach(t=>{
+  tabsEl.querySelectorAll('.tab').forEach(t=>{
     const on = +t.dataset.cat === ci;
     t.classList.toggle('active', on);
     t.setAttribute('aria-selected', on ? 'true' : 'false');
   });
-  document.querySelectorAll('.panel').forEach((p, pi)=>p.classList.toggle('active', pi===ci));
-  document.querySelectorAll('.nav-menu-item').forEach(mi=>mi.classList.toggle('current', +mi.dataset.cat === ci));
+  panelsEl.querySelectorAll('.panel').forEach((p, pi)=>p.classList.toggle('active', pi===ci));
+  topnavEl.querySelectorAll('.nav-menu-item').forEach(mi=>mi.classList.toggle('current', +mi.dataset.cat === ci));
 }
 
 catNames.forEach((cat, ci)=>{
@@ -1507,7 +1723,7 @@ catNames.forEach((cat, ci)=>{
   tab.setAttribute('aria-controls','panel-'+ci);
   tab.setAttribute('aria-haspopup','menu');
   tab.setAttribute('aria-expanded','false');
-  tab.innerHTML = cat + '<span class="score-chip" id="chip-'+ci+'" style="display:none;"></span>';
+  tab.innerHTML = cat + '<span class="score-chip" id="chip-'+ci+'"></span>';
   tab.onclick = ()=>{
     // When collapsed to a single pill, the active pill acts as a menu toggle.
     if(navCollapsed() && tab.classList.contains('active')){
@@ -1536,8 +1752,8 @@ catNames.forEach((cat, ci)=>{
     <div class="gate-row" data-cat="${ci}">
       <span class="gate-q">${GATES[cat].question}?</span>
       <div class="seg gate-seg" data-cat="${ci}">
-        <button data-g="Y">Y</button>
-        <button data-g="N">N</button>
+        <button data-g="Y" aria-pressed="false">Y</button>
+        <button data-g="N" aria-pressed="false">N</button>
       </div>
     </div>
     <div class="gate-banner" id="gate-banner-${ci}"></div>
@@ -1554,8 +1770,8 @@ catNames.forEach((cat, ci)=>{
       </div>
       <div class="controls">
         <div class="seg">
-          <button class="sel-strong" data-r="strong">Strong</button>
-          <button class="sel-weak" data-r="weak">Weak</button>
+          <button class="sel-strong" data-r="strong" aria-pressed="false">Strong</button>
+          <button class="sel-weak" data-r="weak" aria-pressed="false">Weak</button>
         </div>
       </div>
       <div class="extra-row" id="extra-${ci}-${ii}">
@@ -1662,8 +1878,14 @@ panelsEl.addEventListener('click', (e)=>{
     const cat = catNames[ci];
     const val = gateBtn.dataset.g;
     state.gates[cat] = (state.gates[cat]===val) ? null : val;
-    row.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
-    if(state.gates[cat]) gateBtn.classList.add('on');
+    row.querySelectorAll('button').forEach(b=>{
+      b.classList.remove('on');
+      b.setAttribute('aria-pressed','false');
+    });
+    if(state.gates[cat]){
+      gateBtn.classList.add('on');
+      gateBtn.setAttribute('aria-pressed','true');
+    }
     const list = document.getElementById('concept-list-'+ci);
     const banner = document.getElementById('gate-banner-'+ci);
     if(state.gates[cat]==='Y'){
@@ -1687,8 +1909,15 @@ panelsEl.addEventListener('click', (e)=>{
     const rating = btn.dataset.r;
     const s = state[catNames[ci]][ii];
     s.rating = (s.rating===rating) ? null : rating;
-    concept.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));
-    if(s.rating) concept.querySelector('[data-r="'+s.rating+'"]').classList.add('on');
+    concept.querySelectorAll('.seg button').forEach(b=>{
+      b.classList.remove('on');
+      b.setAttribute('aria-pressed','false');
+    });
+    if(s.rating){
+      const onBtn = concept.querySelector('[data-r="'+s.rating+'"]');
+      onBtn.classList.add('on');
+      onBtn.setAttribute('aria-pressed','true');
+    }
     const extra = document.getElementById('extra-'+ci+'-'+ii);
     if(s.rating){
       extra.classList.add('show');
@@ -1721,7 +1950,7 @@ panelsEl.addEventListener('click', (e)=>{
         scoreLabelEl.textContent = SCORE_LABELS[Math.round(so)];
         chip.textContent = so.toFixed(1);
       }
-      chip.style.display = 'inline-block';
+      chip.classList.add('show');
       scoreCard.classList.add('show');
       scoreCard.scrollIntoView({behavior:'smooth', block:'nearest'});
       return;
@@ -1756,12 +1985,12 @@ panelsEl.addEventListener('click', (e)=>{
       reportEl.innerHTML = '<span class="empty-cat">Rate at least one concept as Strong or Weak (or add a note below) to generate a write-up.</span>';
       scoreNumEl.innerHTML = '-<small>/7</small>';
       scoreLabelEl.textContent = 'Not yet rated';
-      chip.style.display = 'none';
+      chip.classList.remove('show');
     } else if(strengths.length===0 && issues.length===0){
       reportEl.textContent = perceptionLine;
       scoreNumEl.innerHTML = '-<small>/7</small>';
       scoreLabelEl.textContent = 'Not yet rated';
-      chip.style.display = 'none';
+      chip.classList.remove('show');
     } else {
       const paragraph = issues.map(i=>i.text).concat(strengths).join(' ');
       const score = computeScore(cat);
@@ -1769,7 +1998,7 @@ panelsEl.addEventListener('click', (e)=>{
       scoreNumEl.innerHTML = score.toFixed(1)+'<small>/7</small>';
       scoreLabelEl.textContent = SCORE_LABELS[Math.round(score)];
       chip.textContent = score.toFixed(1);
-      chip.style.display = 'inline-block';
+      chip.classList.add('show');
     }
     scoreCard.classList.add('show');
     scoreCard.scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -1782,7 +2011,7 @@ panelsEl.addEventListener('click', (e)=>{
     navigator.clipboard.writeText(text).then(()=>{
       const msg = document.getElementById('copied-'+ci);
       msg.classList.add('show');
-      setTimeout(()=>msg.classList.remove('show'), 1500);
+      setTimeout(()=>msg.classList.remove('show'), 1600);
     });
   }
 });
@@ -1807,7 +2036,7 @@ document.getElementById('resetBtn').onclick = ()=>{
     state[cat].forEach(s=>{s.rating=null;s.note='';});
     state.perceptions[cat] = '';
     document.getElementById('score-card-'+ci).classList.remove('show');
-    document.getElementById('chip-'+ci).style.display = 'none';
+    document.getElementById('chip-'+ci).classList.remove('show');
     if(GATES[cat]){
       state.gates[cat] = null;
       const list = document.getElementById('concept-list-'+ci);
@@ -1816,7 +2045,10 @@ document.getElementById('resetBtn').onclick = ()=>{
       if(banner) banner.classList.remove('show');
     }
   });
-  document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.seg button').forEach(b=>{
+    b.classList.remove('on');
+    b.setAttribute('aria-pressed','false');
+  });
   document.querySelectorAll('.extra-row').forEach(e=>e.classList.remove('show'));
   document.querySelectorAll('.note-input').forEach(i=>i.value='');
   document.querySelectorAll('.perception-input').forEach(i=>i.value='');
@@ -1875,9 +2107,51 @@ const runBtn = el('aiRunBtn'), runStatus = el('aiRunStatus');
 const resultBox = el('aiResult'), outputBox = el('aiOutput');
 const scoreNum = el('aiScoreNum'), scoreLabel = el('aiScoreLabel');
 
+const aeGrid = el('aeShotGrid'), aeInput = el('aeShotInput');
+const aeKeyInput = el('aeKeyInput'), aeKeyNote = el('aeKeyNote');
+const aeRunBtn = el('aeRunBtn'), aeRunStatus = el('aeRunStatus');
+const aeResultBox = el('aeResult'), aeOutputBox = el('aeOutput');
+const aeScoreNum = el('aeScoreNum'), aeScoreLabel = el('aeScoreLabel');
+
 const shots = [];               // {id, name, mediaType, base64, url}
+const aeShots = [];
 let savedPrompt = '';
 let running = false;
+
+const AI_INTRO = {
+  adherence: 'Paste the prompt, upload the screens it produced, and Claude judges how faithfully the result follows the prompt.',
+  aesthetics: 'Upload the screens. Claude weighs them against the aesthetic rubric and pulls out the 3-4 points that matter most — weaknesses first — independent of the prompt.'
+};
+
+function selectAiPane(pane){
+  el('aiTabs').querySelectorAll('[role="tab"]').forEach(t=>{
+    const on = t.dataset.pane === pane;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  el('aiPaneAdherence').classList.toggle('active', pane === 'adherence');
+  el('aiPaneAesthetics').classList.toggle('active', pane === 'aesthetics');
+  el('aiPaneAdherence').hidden = pane !== 'adherence';
+  el('aiPaneAesthetics').hidden = pane !== 'aesthetics';
+  el('aiModeBlurb').textContent = AI_INTRO[pane];
+}
+
+el('aiTabs').addEventListener('click', (e)=>{
+  const tab = e.target.closest('[data-pane]');
+  if(!tab) return;
+  selectAiPane(tab.dataset.pane);
+});
+
+el('aiTabs').addEventListener('keydown', (e)=>{
+  const tabs = [...el('aiTabs').querySelectorAll('[role="tab"]')];
+  const i = tabs.indexOf(document.activeElement);
+  if(i < 0) return;
+  if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+  e.preventDefault();
+  const next = e.key === 'ArrowRight' ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length;
+  tabs[next].focus();
+  selectAiPane(tabs[next].dataset.pane);
+});
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -1954,80 +2228,86 @@ function toDownscaledJpeg(file){
   });
 }
 
-function renderShots(){
-  shotGrid.innerHTML = shots.map((s, i)=>`
-    <div class="shot">
-      <img src="${s.url}" alt="Screen ${i+1}: ${esc(s.name)}">
-      <div class="shot-bar">
-        <span class="shot-name">Screen ${i+1}</span>
-        <button class="shot-drop" type="button" data-drop="${s.id}" aria-label="Remove screen ${i+1}">&times;</button>
-      </div>
-    </div>`).join('');
+function bindShots(list, grid, input, addBtn, statusEl){
+  function render(){
+    grid.innerHTML = list.map((s, i)=>`
+      <div class="shot">
+        <img src="${s.url}" alt="Screen ${i+1}: ${esc(s.name)}">
+        <div class="shot-bar">
+          <span class="shot-name">Screen ${i+1}</span>
+          <button class="shot-drop" type="button" data-drop="${s.id}" aria-label="Remove screen ${i+1}">&times;</button>
+        </div>
+      </div>`).join('');
+  }
+  grid.onclick = (e)=>{
+    const btn = e.target.closest('[data-drop]');
+    if(!btn) return;
+    const i = list.findIndex(s=>s.id === btn.dataset.drop);
+    if(i > -1) list.splice(i, 1);
+    render();
+    setStatus(statusEl, '', false);
+  };
+  addBtn.onclick = ()=> input.click();
+  input.addEventListener('change', async ()=>{
+    const files = Array.from(input.files || []);
+    input.value = '';
+    if(!files.length) return;
+
+    const room = MAX_SHOTS - list.length;
+    if(room <= 0){
+      setStatus(statusEl, `That's the ${MAX_SHOTS}-screen limit. Remove one to add another.`, true);
+      return;
+    }
+
+    setStatus(statusEl, 'Reading images…', false);
+    for(const file of files.slice(0, room)){
+      try{
+        const {base64, url} = await toDownscaledJpeg(file);
+        list.push({id: crypto.randomUUID(), name: file.name, mediaType: 'image/jpeg', base64, url});
+      } catch(err){
+        setStatus(statusEl, err.message, true);
+      }
+    }
+    render();
+    if(files.length > room){
+      setStatus(statusEl, `Added ${room} — that's the ${MAX_SHOTS}-screen limit.`, true);
+    } else if(!statusEl.classList.contains('err')){
+      setStatus(statusEl, '', false);
+    }
+  });
 }
 
-shotGrid.onclick = (e)=>{
-  const btn = e.target.closest('[data-drop]');
-  if(!btn) return;
-  const i = shots.findIndex(s=>s.id === btn.dataset.drop);
-  if(i > -1) shots.splice(i, 1);
-  renderShots();
-  setStatus(runStatus, '', false);
-};
-
-el('aiAddShotsBtn').onclick = ()=> shotInput.click();
-
-shotInput.addEventListener('change', async ()=>{
-  const files = Array.from(shotInput.files || []);
-  shotInput.value = '';
-  if(!files.length) return;
-
-  const room = MAX_SHOTS - shots.length;
-  if(room <= 0){
-    setStatus(runStatus, `That's the ${MAX_SHOTS}-screen limit. Remove one to add another.`, true);
-    return;
-  }
-
-  setStatus(runStatus, 'Reading images…', false);
-  for(const file of files.slice(0, room)){
-    try{
-      const {base64, url} = await toDownscaledJpeg(file);
-      shots.push({id: crypto.randomUUID(), name: file.name, mediaType: 'image/jpeg', base64, url});
-    } catch(err){
-      setStatus(runStatus, err.message, true);
-    }
-  }
-  renderShots();
-  if(files.length > room){
-    setStatus(runStatus, `Added ${room} — that's the ${MAX_SHOTS}-screen limit.`, true);
-  } else if(!runStatus.classList.contains('err')){
-    setStatus(runStatus, '', false);
-  }
-});
+bindShots(shots, shotGrid, shotInput, el('aiAddShotsBtn'), runStatus);
+bindShots(aeShots, aeGrid, aeInput, el('aeAddShotsBtn'), aeRunStatus);
 
 /* ---- API key --------------------------------------------------------- */
 
 function paintKeyState(){
   const k = readKey();
   keyInput.value = k;
-  if(k){
-    keyNote.textContent = 'Passcode saved in this browser. Clear the field and press Save to forget it.';
-    keyNote.classList.add('saved');
-  } else {
-    keyNote.textContent = 'Remembered in this browser so you only enter it once.';
-    keyNote.classList.remove('saved');
-  }
+  aeKeyInput.value = k;
+  const saved = !!k;
+  const text = saved
+    ? 'Passcode saved in this browser. Clear the field and press Save to forget it.'
+    : 'Remembered in this browser so you only enter it once.';
+  [keyNote, aeKeyNote].forEach(n=>{
+    n.textContent = text;
+    n.classList.toggle('saved', saved);
+  });
 }
-el('aiKeySaveBtn').onclick = ()=>{
-  writeKey(keyInput.value.trim());
+function saveKeyFrom(input){
+  writeKey(input.value.trim());
   paintKeyState();
-};
+}
+el('aiKeySaveBtn').onclick = ()=> saveKeyFrom(keyInput);
+el('aeKeySaveBtn').onclick = ()=> saveKeyFrom(aeKeyInput);
 paintKeyState();
 
 /* ---- The evaluation -------------------------------------------------- */
 
-function payloadBytes(){
+function payloadBytes(list, extra){
   // base64 is ~3/4 payload bytes; add slack for the JSON envelope.
-  return shots.reduce((n, s)=> n + s.base64.length * 0.75, 0) + savedPrompt.length + 2048;
+  return list.reduce((n, s)=> n + s.base64.length * 0.75, 0) + (extra || 0) + 2048;
 }
 
 const SCORE_WORDS = {7:'Excellent', 6:'Very good', 5:'Good', 4:'Acceptable', 3:'Poor', 2:'Very poor', 1:'Unusable'};
@@ -2078,8 +2358,10 @@ function renderVerdict(data){
 
 function setRunning(on){
   running = on;
-  runBtn.disabled = on;
-  runBtn.setAttribute('aria-busy', on ? 'true' : 'false');
+  [runBtn, aeRunBtn].forEach(btn=>{
+    btn.disabled = on;
+    btn.setAttribute('aria-busy', on ? 'true' : 'false');
+  });
 }
 
 runBtn.onclick = async ()=>{
@@ -2094,7 +2376,7 @@ runBtn.onclick = async ()=>{
 
   savedPrompt = prompt;
 
-  if(payloadBytes() > MAX_PAYLOAD_BYTES){
+  if(payloadBytes(shots, savedPrompt.length) > MAX_PAYLOAD_BYTES){
     setStatus(runStatus, `Those ${shots.length} screens are too large to send at once. Remove one or two and retry.`, true);
     return;
   }
@@ -2107,6 +2389,7 @@ runBtn.onclick = async ()=>{
       method: 'POST',
       headers: {'content-type': 'application/json', 'x-app-passcode': code},
       body: JSON.stringify({
+        mode: 'adherence',
         prompt: savedPrompt,
         images: shots.map(s=>({media_type: s.mediaType, data: s.base64}))
       })
@@ -2116,12 +2399,7 @@ runBtn.onclick = async ()=>{
     try{ data = await resp.json(); } catch(e){ /* non-JSON error page */ }
 
     if(!resp.ok){
-      let msg = (data && data.error) || `Request failed (${resp.status}).`;
-      if(resp.status === 401) msg = 'Wrong passcode.';
-      else if([404, 405, 501].includes(resp.status)) msg = 'No evaluation endpoint here — AI mode runs on the deployed site, not a plain static server.';
-      else if(resp.status === 413) msg = 'Those screens were too large. Remove one or two and retry.';
-      else if(resp.status === 504) msg = 'The evaluation timed out. Try again with fewer screens.';
-      setStatus(runStatus, msg, true);
+      setStatus(runStatus, failMessage(resp, data), true);
       return;
     }
 
@@ -2145,8 +2423,142 @@ el('aiCopyBtn').onclick = ()=>{
   navigator.clipboard.writeText(head + '\n\n' + text).then(()=>{
     const msg = el('aiCopied');
     msg.classList.add('show');
-    setTimeout(()=>msg.classList.remove('show'), 1500);
+    setTimeout(()=>msg.classList.remove('show'), 1600);
   });
+};
+
+el('aiClearBtn').onclick = ()=>{
+  resultBox.classList.remove('show');
+  outputBox.innerHTML = '';
+  scoreNum.innerHTML = '-<small>/7</small>';
+  scoreLabel.textContent = '';
+  el('aiCopied').classList.remove('show');
+  setStatus(runStatus, '', false);
+};
+
+function failMessage(resp, data){
+  let msg = (data && data.error) || `Request failed (${resp.status}).`;
+  if(resp.status === 401) msg = 'Wrong passcode.';
+  else if([404, 405, 501].includes(resp.status)) msg = 'No evaluation endpoint here — AI mode runs on the deployed site, not a plain static server.';
+  else if(resp.status === 413) msg = 'Those screens were too large. Remove one or two and retry.';
+  else if(resp.status === 504) msg = 'The evaluation timed out. Try again with fewer screens.';
+  return msg;
+}
+
+function scoreTone(n){
+  if(n >= 5) return 'hi';
+  if(n <= 3) return 'lo';
+  return 'mid';
+}
+
+function renderAesthetics(data){
+  const points = Array.isArray(data.key_points) ? data.key_points.filter(Boolean) : [];
+  const score = Number(data.overall_score);
+
+  if(Number.isFinite(score)){
+    aeScoreNum.innerHTML = esc(String(score)) + '<small>/7</small>';
+    aeScoreLabel.textContent = SCORE_WORDS[Math.round(score)] || '';
+  } else {
+    aeScoreNum.innerHTML = '-<small>/7</small>';
+    aeScoreLabel.textContent = '';
+  }
+
+  let html = '';
+  if(data.summary) html += `<p class="ai-summary">${esc(data.summary)}</p>`;
+  if(data.score_rationale) html += `<p class="ai-rationale">${esc(data.score_rationale)}</p>`;
+
+  const pointHtml = (p)=>{
+    const screens = Array.isArray(p.screens) ? p.screens.filter(s=>Number.isFinite(Number(s))) : [];
+    const weak = p.kind === 'weakness';
+    const detail = [p.criterion, p.evidence].filter(Boolean).join(' — ');
+    return `<li>
+      <span class="verdict-tag ${weak ? 'lo' : 'hi'}">${weak ? 'Weakness' : 'Strength'}</span>
+      <p class="verdict-req">${esc(p.point)}</p>
+      ${detail ? `<p class="verdict-evidence">${esc(detail)}</p>` : ''}
+      ${screens.length ? `<p class="verdict-screens">Screen ${screens.map(s=>esc(String(s))).join(', ')}</p>` : ''}
+    </li>`;
+  };
+
+  // Weaknesses first, whatever order the model returned them in.
+  const weaknesses = points.filter(p=>p.kind === 'weakness');
+  const strengths = points.filter(p=>p.kind !== 'weakness');
+
+  if(weaknesses.length){
+    html += `<div class="verdict-group"><p class="prompt-section-label">Weaknesses &middot; ${weaknesses.length}</p><ul class="verdict-list">${weaknesses.map(pointHtml).join('')}</ul></div>`;
+  }
+  if(strengths.length){
+    html += `<div class="verdict-group"><p class="prompt-section-label">Strengths &middot; ${strengths.length}</p><ul class="verdict-list">${strengths.map(pointHtml).join('')}</ul></div>`;
+  }
+
+  aeOutputBox.innerHTML = html || '<span class="empty-cat">Claude returned no points to report.</span>';
+  aeResultBox.classList.add('show');
+  aeResultBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+aeRunBtn.onclick = async ()=>{
+  if(running) return;
+
+  const code = readKey() || aeKeyInput.value.trim();
+  if(!aeShots.length){ setStatus(aeRunStatus, 'Add at least one screenshot.', true); return; }
+  if(!code){ setStatus(aeRunStatus, 'Enter the passcode above.', true); aeKeyInput.focus(); return; }
+
+  if(payloadBytes(aeShots) > MAX_PAYLOAD_BYTES){
+    setStatus(aeRunStatus, `Those ${aeShots.length} screens are too large to send at once. Remove one or two and retry.`, true);
+    return;
+  }
+
+  setRunning(true);
+  setStatus(aeRunStatus, `Scoring visual quality across ${aeShots.length} screen${aeShots.length===1?'':'s'}\u2026 this can take up to a minute.`, false);
+
+  try{
+    const resp = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {'content-type': 'application/json', 'x-app-passcode': code},
+      body: JSON.stringify({
+        mode: 'aesthetics',
+        images: aeShots.map(s=>({media_type: s.mediaType, data: s.base64}))
+      })
+    });
+
+    let data = null;
+    try{ data = await resp.json(); } catch(e){ /* non-JSON error page */ }
+
+    if(!resp.ok){
+      setStatus(aeRunStatus, failMessage(resp, data), true);
+      return;
+    }
+
+    renderAesthetics(data || {});
+    setStatus(aeRunStatus, '', false);
+
+  } catch(err){
+    const msg = (err && err.message) || 'Something went wrong.';
+    setStatus(aeRunStatus, /Failed to fetch|NetworkError/i.test(msg)
+      ? 'Could not reach the server. Check your connection and try again.'
+      : msg, true);
+  } finally {
+    setRunning(false);
+  }
+};
+
+el('aeCopyBtn').onclick = ()=>{
+  const text = aeOutputBox.innerText.trim();
+  if(!text) return;
+  const head = aeScoreNum.innerText.trim() + ' ' + aeScoreLabel.textContent.trim();
+  navigator.clipboard.writeText(head + '\n\n' + text).then(()=>{
+    const msg = el('aeCopied');
+    msg.classList.add('show');
+    setTimeout(()=>msg.classList.remove('show'), 1600);
+  });
+};
+
+el('aeClearBtn').onclick = ()=>{
+  aeResultBox.classList.remove('show');
+  aeOutputBox.innerHTML = '';
+  aeScoreNum.innerHTML = '-<small>/7</small>';
+  aeScoreLabel.textContent = '';
+  el('aeCopied').classList.remove('show');
+  setStatus(aeRunStatus, '', false);
 };
 </script>
 </body>

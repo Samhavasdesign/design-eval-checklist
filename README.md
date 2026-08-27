@@ -13,15 +13,22 @@ are inline; the only external requests are Google Fonts.
    extracts explicit requirements, implicit ones, and flags worth weighing.
 2. **Evaluate a design** — the manual checklist: rate concepts Strong/Weak
    across four categories, get a 1–7 score and a prose write-up.
-3. **AI mode** — paste the prompt, upload the screens it produced, and Claude
-   judges prompt adherence against them.
+3. **AI mode** — upload the screens a design produced and let Claude score them,
+   on two tabs:
+   - *Prompt Adherence* — paste the prompt too; Claude judges how faithfully the
+     screens follow it, requirement by requirement.
+   - *Aesthetics* — no prompt; Claude weighs the screens against the full
+     aesthetic rubric and reports the 3–4 points that matter most, **weaknesses
+     first**, then any standout strengths.
 
 ### AI mode
 
 AI mode is the only part that calls out to a model. It runs through a Vercel
 serverless function at `api/evaluate.js`, which calls `claude-opus-5` with
 adaptive thinking and a JSON-schema structured output using the official
-[Anthropic SDK](https://github.com/anthropics/anthropic-sdk-typescript).
+[Anthropic SDK](https://github.com/anthropics/anthropic-sdk-typescript). The
+system prompt and output schema for both tabs live server-side so a caller
+can't reword the rubric.
 
 **The API key lives only in Vercel's environment.** It is never in this repo,
 never sent to the browser, and never visible to anyone using the site. Every
@@ -32,9 +39,14 @@ Screenshots are downscaled to a 1400px long edge in the browser before upload �
 it keeps the request under Vercel's 4.5 MB body cap and avoids paying for
 resolution the model discards. Up to 10 screens per run.
 
-Requirements a static screenshot cannot settle — responsive behaviour, working
-forms, link destinations — are reported as **"can't be judged from a
-screenshot"** rather than guessed at, and don't drag the score down.
+On the Prompt Adherence tab, requirements a static screenshot cannot settle —
+responsive behaviour, working forms, link destinations — are reported as
+**"can't be judged from a screenshot"** rather than guessed at, and don't drag
+the score down.
+
+The Aesthetics tab assesses all 15 criteria from the checklist internally but
+only surfaces the 3–4 most consequential; every real weakness is raised before
+any strength. Each result has Copy and Clear, same as Prompt Adherence.
 
 AI mode does not work against a plain static server (`python3 -m http.server`);
 the other two tools do. Use `vercel dev` to exercise it locally.
