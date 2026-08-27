@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Design Evaluation Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3efe4;
+    --paper-2:#ece5d3;
+    --ink:#2b2620;
+    --ink-soft:#6b6255;
+    --red:#a83b28;
+    --green:#41603f;
+    --line:#d8cfba;
+    --line-strong:#96805a;
+    --amber-bg:#efe0c9;
+    --amber-border:#8f6f2c;
+    --focus:#1d5fae;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'JetBrains Mono', monospace;
+    -webkit-font-smoothing:antialiased;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:2px;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:36px 28px 80px;}
+  header{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  header h1{
+    font-family:'Newsreader', serif;
+    font-weight:500;
+    font-size:30px;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:0.02em;
+  }
+  .stamp{
+    font-size:12px;
+    color:var(--red);
+    border:1px solid var(--red);
+    padding:4px 10px;
+    transform:rotate(-2deg);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .tabs{
+    display:flex;
+    gap:2px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:10px 16px;
+    background:var(--paper-2);
+    border:1px solid var(--line-strong);
+    cursor:pointer;
+    color:var(--ink-soft);
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  .tab:hover{background:var(--line);}
+  .tab.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .tab.active:hover{background:var(--ink);}
+  .tab .count{margin-left:6px;}
+  .tab .score-chip{
+    margin-left:8px;
+    background:var(--red);
+    color:var(--paper);
+    padding:2px 7px;
+    border-radius:3px;
+    font-size:12px;
+    font-weight:600;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .gate-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--amber-bg);
+    border:1px solid var(--amber-border);
+    padding:12px 16px;
+    margin-bottom:16px;
+  }
+  .gate-q{
+    font-size:12px;
+    letter-spacing:0.02em;
+    color:var(--ink);
+    flex:1;
+  }
+  .gate-seg button{
+    padding:6px 14px;
+  }
+  .gate-seg button:hover{background:var(--line);}
+  .gate-seg button[data-g="Y"].on{background:var(--red);color:var(--paper);font-weight:700;}
+  .gate-seg button[data-g="N"].on{background:var(--green);color:var(--paper);font-weight:700;}
+  .gate-seg button.on::after{content:" \2713";}
+  .gate-banner{
+    display:none;
+    font-size:12px;
+    color:var(--red);
+    font-style:italic;
+    font-family:'Newsreader', serif;
+    margin:-8px 0 16px;
+  }
+  .gate-banner.show{display:block;}
+  .concept-list.dimmed{opacity:0.35;pointer-events:none;}
+  .concept{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px 16px;
+    align-items:start;
+  }
+  .concept-label{
+    font-family:'Newsreader', serif;
+    font-size:16px;
+    font-weight:500;
+    margin:0 0 2px;
+  }
+  .concept-q{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0;
+    line-height:1.5;
+  }
+  .controls{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:6px;
+  }
+  .seg{
+    display:flex;
+    border:1px solid var(--ink);
+  }
+  .seg button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:7px 12px;
+    background:var(--paper);
+    border:none;
+    border-right:1px solid var(--ink);
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button:hover{background:var(--line);}
+  .seg button.sel-strong.on{background:var(--green);color:var(--paper);font-weight:700;}
+  .seg button.sel-weak.on{background:var(--red);color:var(--paper);font-weight:700;}
+  .seg button.on:hover{background:var(--ink);}
+  .seg button.on::after{content:" \2713";}
+  .extra-row{
+    grid-column:1 / -1;
+    display:none;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .extra-row.show{display:flex;}
+  .note-label{
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .note-input{
+    flex:1;
+    min-width:220px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:6px 8px;
+    border:1px solid var(--line-strong);
+    background:#fff;
+    color:var(--ink);
+  }
+  .note-input::placeholder{color:var(--ink-soft);}
+  .perception-block{
+    margin-bottom:24px;
+    padding-bottom:18px;
+    border-bottom:1px dashed var(--line-strong);
+  }
+  .perception-label{
+    font-family:'Newsreader', serif;
+    font-size:18px;
+    font-weight:500;
+    margin:0 0 4px;
+  }
+  .perception-hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0 0 10px;
+    line-height:1.5;
+  }
+  .perception-input{
+    width:100%;
+    font-family:'Newsreader', serif;
+    font-size:15px;
+    padding:10px 12px;
+    border:1px solid var(--line-strong);
+    background:#fff;
+    color:var(--ink);
+  }
+  .perception-input::placeholder{color:var(--ink-soft);font-family:'JetBrains Mono', monospace;font-size:12px;}
+  .cat-action-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+    padding-top:16px;
+    border-top:2px solid var(--ink);
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .tally{font-size:12px;color:var(--ink-soft);}
+  .tally b{color:var(--ink);}
+  .tally .g{color:var(--green);}
+  .tally .r{color:var(--red);}
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:10px 20px;
+    background:var(--ink);
+    color:var(--paper);
+    border:1px solid var(--ink);
+    cursor:pointer;
+  }
+  .btn:hover{background:#453d33;border-color:#453d33;}
+  .btn.ghost{
+    background:transparent;
+    color:var(--ink);
+  }
+  .btn.ghost:hover{background:var(--line);}
+  .btn.small{padding:6px 12px;font-size:12px;}
+  .score-card{
+    display:none;
+    margin-top:18px;
+    background:#fff;
+    border:1px solid var(--line-strong);
+  }
+  .score-card.show{display:block;}
+  .score-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    padding:18px 22px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .score-num{
+    font-family:'Newsreader', serif;
+    font-size:38px;
+    font-weight:500;
+    color:var(--red);
+    line-height:1;
+  }
+  .score-num small{font-size:16px;color:var(--ink-soft);}
+  .score-label{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-soft);
+  }
+  .report{
+    font-family:'Newsreader', serif;
+    font-size:16px;
+    line-height:1.7;
+    white-space:pre-wrap;
+    padding:20px 22px;
+  }
+  .report .empty-cat{color:var(--ink-soft);font-style:italic;font-size:14px;}
+  .copy-row{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    padding:0 22px 18px;
+    align-items:center;
+  }
+  .copied{color:var(--green);font-size:12px;opacity:0;transition:opacity 0.2s;}
+  .copied.show{opacity:1;}
+  .footer-bar{
+    position:sticky;
+    bottom:0;
+    background:var(--paper);
+    border-top:2px solid var(--ink);
+    padding:14px 0 4px;
+    margin-top:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .module-divider{
+    height:2px;
+    background:var(--ink);
+    margin:36px 0 28px;
+  }
+  .prompt-module{
+    padding-bottom:12px;
+  }
+  .module-title{
+    font-family:'Newsreader', serif;
+    font-size:22px;
+    font-weight:500;
+    margin:0 0 6px;
+  }
+  .module-sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0 0 16px;
+    line-height:1.6;
+  }
+  .prompt-textarea{
+    width:100%;
+    min-height:140px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    padding:14px;
+    border:1px solid var(--line-strong);
+    background:#fff;
+    color:var(--ink);
+    resize:vertical;
+    line-height:1.5;
+  }
+  .prompt-textarea::placeholder{color:var(--ink-soft);}
+  .module-action-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .module-status{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .module-status.err{color:var(--red);font-style:normal;}
+  .prompt-output{
+    margin-top:18px;
+  }
+  .prompt-section-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    margin:16px 0 8px;
+  }
+  .prompt-section-label:first-child{margin-top:0;}
+  .prompt-list{
+    font-family:'Newsreader', serif;
+    font-size:16px;
+    line-height:1.6;
+    padding-left:22px;
+    margin:0;
+  }
+  .prompt-list li{margin-bottom:8px;}
+  .prompt-list.ranked{list-style:decimal;}
+  .prompt-list:not(.ranked){list-style:disc;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Design evaluation checklist</h1>
+      <p>Aesthetic &middot; Functionality &middot; Usability &middot; Prompt adherence</p>
+    </div>
+    <div class="stamp">for review</div>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+
+
+  <div class="footer-bar">
+    <span></span>
+    <button class="btn ghost" id="resetBtn">Reset all</button>
+  </div>
+
+  <div class="module-divider"></div>
+
+  <section class="prompt-module">
+    <h2 class="module-title">What is this prompt looking for?</h2>
+    <p class="module-sub">Paste the AI prompt below. This pulls out what the response actually needs to nail, ranked by importance where that's a meaningful thing to do.</p>
+    <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..."></textarea>
+    <div class="module-action-bar">
+      <span class="module-status" id="promptStatus"></span>
+      <button class="btn" id="analyzeBtn">Find what it's looking for</button>
+    </div>
+    <div class="prompt-output" id="promptOutput"></div>
+  </section>
+
+</div>
+
+<script>
+function analyzeExplicit(text){
+  // 1. If the prompt already contains its own bullet/numbered list, trust that structure directly.
+  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const bulletLines = lines.filter(l=>/^([-*•]|\d+[.)])\s+/.test(l));
+  if(bulletLines.length>=2){
+    const items = bulletLines
+      .map(l=>l.replace(/^([-*•]|\d+[.)])\s+/,'').trim())
+      .filter(Boolean)
+      .slice(0,10);
+    const ranked = bulletLines.every(l=>/^\d+[.)]/.test(l));
+    return {ranked, items};
+  }
+
+  // 2. Otherwise, break into sentences and weight them by how strongly the prompt insists on them.
+  const sentences = text
+    .replace(/\n+/g,'. ')
+    .split(/(?<=[.?!])\s+/)
+    .map(s=>s.trim())
+    .filter(Boolean);
+
+  const TIERS = [
+    {weight:3, words:['must','required','mandatory','critical','essential','never','always','cannot',"can't","don't",'do not','exactly','only']},
+    {weight:2, words:['should','important','make sure','ensure','need to','needs to','has to']},
+    {weight:1, words:['want','would like','prefer','ideally','try to','consider','looking for','please']}
+  ];
+
+  function score(s){
+    const lower = s.toLowerCase();
+    for(const tier of TIERS){
+      if(tier.words.some(w=>lower.includes(w))) return tier.weight;
+    }
+    return 0;
+  }
+
+  const candidates = sentences
+    .filter(s=>s.split(' ').length>=4 && s.length<=220)
+    .map(s=>({text:s, weight:score(s)}));
+
+  if(candidates.length===0) return {ranked:false, items:[]};
+
+  const distinctWeights = new Set(candidates.map(c=>c.weight));
+  const ranked = distinctWeights.size>1;
+
+  candidates.sort((a,b)=>b.weight-a.weight);
+
+  const items = candidates.slice(0,8).map(c=>{
+    let t = c.text.replace(/^[-*•]\s*/,'').trim();
+    if(t.length>150) t = t.slice(0,147)+'...';
+    return t.charAt(0).toUpperCase()+t.slice(1);
+  });
+
+  return {ranked, items};
+}
+
+function analyzeImplicit(text){
+  const items = [];
+
+  const roleMatch = text.match(/you are (?:an?|the)\s+([^.,\n]{3,60})/i);
+  if(roleMatch) items.push('Respond in the voice/expertise of ' + roleMatch[1].trim());
+
+  const audienceMatch = text.match(/for (?:my|our|a|an)\s+[a-z\s]{2,30}?(?:audience|reader|readers|client|clients|team|customer|customers|beginner|beginners|kids|children|student|students|boss|manager)/i);
+  if(audienceMatch) items.push('Tailor tone and complexity for: ' + audienceMatch[0].trim());
+
+  const platformMatch = text.match(/\bfor (twitter|x|linkedin|instagram|tiktok|a blog(?: post)?|an email|a newsletter|slack|a presentation|a report|reddit)\b/i);
+  if(platformMatch) items.push('Match typical conventions for ' + platformMatch[1].trim());
+
+  if(/for example|e\.g\.|such as|here's an example|like this:/i.test(text)) {
+    items.push('Mirror the style/format shown in the example given');
+  }
+
+  if(/\bplease\b|\bkindly\b/i.test(text)) items.push('Keep a polite, considerate tone');
+  if(/!{1,}|awesome|super excited|hey there|lol/i.test(text)) items.push('Keep a casual, upbeat tone');
+  if(/\bprofessional\b|\bformal\b|\bbusiness\b/i.test(text)) items.push('Maintain a professional register');
+
+  const trimmed = text.trim();
+  const hasDirective = /\b(write|create|draft|list|summarize|explain|generate|make|build|design|compare|analyze|outline)\b/i.test(text);
+  if(/\?\s*$/.test(trimmed) && !hasDirective){
+    items.push('Answer the question directly rather than just discussing around it');
+  }
+
+  return items.slice(0,6);
+}
+
+document.getElementById('analyzeBtn').onclick = ()=>{
+  const input = document.getElementById('promptInput').value.trim();
+  const statusEl = document.getElementById('promptStatus');
+  const outputEl = document.getElementById('promptOutput');
+  statusEl.classList.remove('err');
+
+  if(!input){
+    statusEl.textContent = 'Paste a prompt first.';
+    statusEl.classList.add('err');
+    outputEl.innerHTML = '';
+    return;
+  }
+
+  const {ranked, items} = analyzeExplicit(input);
+  const implicitItems = analyzeImplicit(input);
+  statusEl.textContent = '';
+
+  if(items.length===0 && implicitItems.length===0){
+    outputEl.innerHTML = '<span class="empty-cat">Nothing concrete to pull out of that prompt. Try pasting more of it.</span>';
+    return;
+  }
+
+  let html = '';
+  if(items.length){
+    html += '<p class="prompt-section-label">Explicit requirements</p>';
+    html += ranked
+      ? '<ol class="prompt-list ranked">' + items.map(i=>'<li>'+i+'</li>').join('') + '</ol>'
+      : '<ul class="prompt-list">' + items.map(i=>'<li>'+i+'</li>').join('') + '</ul>';
+  }
+  if(implicitItems.length){
+    html += '<p class="prompt-section-label">Implicit requirements</p>';
+    html += '<ul class="prompt-list">' + implicitItems.map(i=>'<li>'+i+'</li>').join('') + '</ul>';
+  }
+  outputEl.innerHTML = html;
+};
+</script>
+
+<script>
+const DATA = {
+  "Aesthetic & visual appeal": {
+    note: "Strong doesn't mean good taste here, it means the principle is executed with intent. Consolidated from 28 concepts down to 15; overlapping ones (e.g. focal point/flow into hierarchy, spacing/rhythm/whitespace into one) were merged so each item is actually distinct.",
+    items: [
+      ["Visual hierarchy","Is importance immediately clear, with an obvious place for the eye to start and move through the page?","clear, prioritized, intuitive","flat, muddled, disjointed"],
+      ["Composition","Does the page work together as a whole?","balanced, structured, cohesive","fragmented, lopsided, awkward"],
+      ["Balance","Is visual weight distributed appropriately?","stable, balanced, anchored","top-heavy, bottom-heavy, lopsided"],
+      ["Proportion & scale","Are elements sized appropriately relative to importance, and does size communicate relationships?","harmonious, proportional, deliberate","disproportionate, exaggerated, arbitrary"],
+      ["Spacing & rhythm","Are gaps, padding, and whitespace consistent and purposeful?","deliberate, balanced, purposeful","cramped, excessive, erratic"],
+      ["Alignment & structure","Do elements share intentional edges, and does the layout feel governed by a system?","precise, systematic, structured","misaligned, arbitrary, inconsistent"],
+      ["Density & grouping","Is information density appropriate, and do related things visually belong together?","balanced, connected, clearly grouped","crowded, sparse, fragmented"],
+      ["Typography","Does the overall type system feel considered, with clearly distinguishable content levels?","cohesive, refined, scannable","inconsistent, generic, flat"],
+      ["Readability & legibility","Is text comfortable to read and physically distinguishable?","comfortable, crisp, clear","dense, tiring, low-contrast"],
+      ["Color palette & usage","Do the colors work together, and is color used purposefully?","cohesive, harmonious, selective","muddy, harsh, arbitrary"],
+      ["Contrast","Are important visual differences apparent?","clear, appropriate","weak, excessive, harsh"],
+      ["Consistency & cohesion","Are similar things treated similarly, and does everything belong to the same visual language?","systematic, unified, harmonious","inconsistent, fragmented, mismatched"],
+      ["Restraint & visual noise","Did the designer know when to stop, keeping choices deliberate rather than decorative?","disciplined, clean, considered","excessive, cluttered, arbitrary"],
+      ["Polish / refinement","Does it feel finished?","resolved, refined, professional","rough, unresolved, unfinished"],
+      ["Originality","Does it feel thoughtfully designed rather than default?","distinctive, considered","generic, template-like"]
+    ]
+  },
+  "Functionality": {
+    note: "Much less subjective. Does it actually work.",
+    items: [
+      ["Core functionality","Does the main experience actually work?","complete, operational","broken, incomplete"],
+      ["Navigation","Can users move through the site?","functional, predictable","dead, incorrect, confusing"],
+      ["Controls","Do buttons, toggles, etc. work?","responsive, operational","dead, unresponsive"],
+      ["Affordance","Does something look interactive when it is?","obvious, intuitive","ambiguous, misleading"],
+      ["Interaction feedback","Does the system acknowledge an action?","immediate, clear","absent, ambiguous"],
+      ["State changes","Are active/selected/open states handled correctly?","clear, persistent","missing, inconsistent"],
+      ["Forms","Can information actually be entered and submitted?","complete, usable","incomplete, broken"],
+      ["Validation","Does it handle invalid input?","helpful, clear","absent, incorrect"],
+      ["Error handling","What happens when something fails?","graceful, recoverable","blocking, silent"],
+      ["Responsiveness","Does it adapt across available screen sizes?","stable, adaptive","broken, overflowing"],
+      ["Overflow","Does content remain inside its boundaries?","contained","overflowing"],
+      ["Clipping","Is content accidentally cut off?","fully visible","clipped, truncated"],
+      ["Scrolling","Can users reach all content?","accessible, smooth","blocked, trapped"],
+      ["Routing","Do links and actions lead to the correct destination?","accurate","misdirected"],
+      ["Persistence","Does state remain when expected?","stable, persistent","unexpectedly reset"],
+      ["Discoverability","Can users find available functionality?","apparent, accessible","obscure, hidden"],
+      ["Predictability","Does behavior match normal expectations?","intuitive, conventional","surprising, inconsistent"],
+      ["Runtime stability","Does the site load and remain usable?","stable, reliable","crashes, fails, errors"],
+      ["Functional completeness","Is the experience genuinely implemented?","fully functional","superficial, simulated"]
+    ]
+  },
+  "Usability": {
+    note: "Distinct from functionality. Could this work exactly as coded and still have this problem? If yes, it's usability.",
+    items: [
+      ["Clarity","Is it obvious what the user can or should do?","clear, self-explanatory, intuitive","confusing, ambiguous, unclear"],
+      ["Discoverability","Can users find the features and actions they need?","apparent, visible, easy to locate","hidden, obscure, buried"],
+      ["Efficiency","Can the workflow be completed without unnecessary effort?","streamlined, direct, efficient","cumbersome, tedious, indirect"],
+      ["Affordance","Does an element visually suggest how it behaves?","recognizable, intuitive, conventional","misleading, ambiguous, deceptive"],
+      ["Expectation matching","Does the interface behave the way its appearance suggests?","predictable, conventional, intuitive","surprising, contradictory, misleading"],
+      ["Feedback","Does the interface tell users what happened after an action?","immediate, visible, informative","absent, delayed, ambiguous"],
+      ["System status","Can users tell what the interface is currently doing?","transparent, apparent, communicated","opaque, uncertain"],
+      ["Current state","Can users tell what is selected, open, or active?","distinct, persistent, obvious","unclear, invisible, inconsistent"],
+      ["Orientation","Does the user understand where they are?","grounded, contextual, navigable","disorienting, contextless"],
+      ["Information architecture","Is content organized in a way that makes sense?","logical, intuitive, structured","arbitrary, fragmented, confusing"],
+      ["Prioritization","Are the most important actions easiest to find and use?","focused, appropriately emphasized","competing, buried, overemphasized"],
+      ["Label clarity","Do labels clearly communicate what controls do?","descriptive, concise, unambiguous","vague, cryptic, misleading"],
+      ["Scanability","Can users quickly understand their options?","scannable, digestible, structured","dense, overwhelming, undifferentiated"],
+      ["Cognitive load","How much mental effort does the interface require?","simple, focused, manageable","overwhelming, demanding, complex"],
+      ["Recognition vs. recall","Does the interface show users their options rather than making them remember things?","visible, recognizable, contextual","memory-dependent, hidden"],
+      ["Workflow continuity","Does each step naturally lead to the next?","seamless, coherent, progressive","disjointed, interrupted, dead-ended"],
+      ["Error prevention","Does the design help users avoid mistakes?","preventative, constrained, guided","error-prone, ambiguous"],
+      ["Error messaging","If users make a mistake, do they understand what happened?","specific, actionable, contextual","vague, generic, absent"],
+      ["Error recovery","Can users recover easily after something goes wrong?","recoverable, forgiving, reversible","blocking, destructive, irreversible"],
+      ["Forgiveness","Does the interface protect users from accidental actions?","reversible, safe, forgiving","unforgiving, risky"],
+      ["Reachability","Can users actually access important controls?","accessible, reachable, unobstructed","obstructed, inaccessible, off-screen"],
+      ["Control placement","Are actions located where users would expect them?","conventional, contextual, logical","disconnected, unexpected"],
+      ["Target size","Are interactive elements easy to select?","comfortably sized, accessible","tiny, fiddly, difficult"],
+      ["Consistency","Do similar interactions behave similarly?","predictable, consistent","inconsistent, unpredictable"],
+      ["User control","Does the user feel in control of the experience?","flexible, reversible, user-controlled","restrictive, trapping"],
+      ["Defaults","Do initial choices help rather than hinder?","sensible, helpful, appropriate","arbitrary, risky, inconvenient"],
+      ["Overall learnability","Can a new user understand the interface quickly?","intuitive, approachable, learnable","confusing, unfamiliar, demanding"],
+      ["Overall friction","How much unnecessary resistance does the user encounter?","frictionless, streamlined","high-friction, cumbersome"]
+    ]
+  },
+  "Prompt adherence": {
+    note: "Strong doesn't mean good design. It means faithful to what was actually asked.",
+    items: [
+      ["Completeness","Did it include everything requested?","complete, comprehensive","partial, omitted"],
+      ["Accuracy","Did it implement requirements correctly?","accurate, faithful","incorrect, misrepresented"],
+      ["Explicit requirements","Did it follow directly stated instructions?","satisfied, fulfilled","violated, omitted"],
+      ["Constraints","Did it respect limits and rules?","compliant","violated"],
+      ["Structure","Does organization match what was requested?","faithful, aligned","reorganized, divergent"],
+      ["Content fidelity","Is the actual requested content there?","exact, faithful","altered, substituted"],
+      ["Feature adherence","Were requested features implemented?","implemented, complete","missing, partial"],
+      ["Naming fidelity","Were specified names and labels preserved?","exact, consistent","renamed, altered"],
+      ["Language","Did it use the requested language?","correct, consistent","incorrect, mixed"],
+      ["Scope","Did it build the appropriate amount?","appropriately scoped","overbuilt, underbuilt"],
+      ["Unrequested additions","Did it invent unnecessary things?","restrained, relevant","distracting, conflicting"],
+      ["Substitution","Did it replace a requested thing with something else?","faithful","substituted"],
+      ["Interpretation","Was ambiguity handled reasonably?","reasonable, defensible","unsupported, unjustified"],
+      ["Materiality","How consequential is the difference?","minor, immaterial","material, substantial"],
+      ["Contradiction","Does anything directly oppose an instruction?","aligned","contradictory"],
+      ["Overall faithfulness","How closely does the result represent the requested outcome?","faithful, aligned","divergent"]
+    ]
+  }
+};
+
+const SCORE_LABELS = {7:"Excellent",6:"Very good",5:"Good",4:"Acceptable",3:"Poor",2:"Very poor",1:"Unusable"};
+
+const GATES = {
+  "Aesthetic & visual appeal": {
+    question: "Failed to render",
+    overrideText: "N/A. Prototype failed to render.",
+    scoreOverride: null
+  },
+  "Prompt adherence": {
+    question: "The prompt was illegible",
+    overrideText: "The prompt doesn't ask for anything specifically, the response's delivery is beyond expected.",
+    scoreOverride: 7
+  }
+};
+
+const PERCEPTION_TERMS = {
+  "Aesthetic & visual appeal": "visual appeal",
+  "Functionality": "functionality",
+  "Usability": "usability",
+  "Prompt adherence": "prompt adherence"
+};
+
+const state = {gates:{}, perceptions:{}};
+Object.keys(DATA).forEach(cat=>{
+  state[cat] = DATA[cat].items.map(()=>({rating:null, note:''}));
+  if(GATES[cat]) state.gates[cat] = null;
+  state.perceptions[cat] = '';
+});
+
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+const catNames = Object.keys(DATA);
+tabsEl.setAttribute('role','tablist');
+
+catNames.forEach((cat, ci)=>{
+  const tab = document.createElement('button');
+  tab.type = 'button';
+  tab.className = 'tab' + (ci===0 ? ' active' : '');
+  tab.dataset.cat = ci;
+  tab.setAttribute('role','tab');
+  tab.setAttribute('aria-selected', ci===0 ? 'true' : 'false');
+  tab.setAttribute('aria-controls','panel-'+ci);
+  tab.innerHTML = cat + ' <span class="count" id="count-'+ci+'">0/'+DATA[cat].items.length+'</span><span class="score-chip" id="chip-'+ci+'" style="display:none;"></span>';
+  tab.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('active'); t.setAttribute('aria-selected','false');});
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected','true');
+    document.getElementById('panel-'+ci).classList.add('active');
+  };
+  tabsEl.appendChild(tab);
+
+  const panel = document.createElement('div');
+  panel.className = 'panel' + (ci===0 ? ' active' : '');
+  panel.id = 'panel-'+ci;
+  panel.setAttribute('role','tabpanel');
+  let html = '';
+  html += `
+    <div class="perception-block">
+      <p class="perception-label">Your overall perceptions</p>
+      <p class="perception-hint">Write one sentence summing up your first impression of ${PERCEPTION_TERMS[cat]}.</p>
+      <input type="text" class="perception-input" id="perception-${ci}" placeholder="e.g. Feels polished but the hierarchy needs work.">
+    </div>`;
+  if(GATES[cat]){
+    html += `
+    <div class="gate-row" data-cat="${ci}">
+      <span class="gate-q">${GATES[cat].question}?</span>
+      <div class="seg gate-seg" data-cat="${ci}">
+        <button data-g="Y">Y</button>
+        <button data-g="N">N</button>
+      </div>
+    </div>
+    <div class="gate-banner" id="gate-banner-${ci}"></div>
+    <div class="concept-list" id="concept-list-${ci}">`;
+  } else {
+    html += `<div class="concept-list" id="concept-list-${ci}">`;
+  }
+  DATA[cat].items.forEach((item, ii)=>{
+    html += `
+    <div class="concept" data-cat="${ci}" data-item="${ii}">
+      <div>
+        <p class="concept-label">${item[0]}</p>
+        <p class="concept-q">${item[1]}</p>
+      </div>
+      <div class="controls">
+        <div class="seg">
+          <button class="sel-strong" data-r="strong">Strong</button>
+          <button class="sel-weak" data-r="weak">Weak</button>
+        </div>
+      </div>
+      <div class="extra-row" id="extra-${ci}-${ii}">
+        <span class="note-label">Notes:</span>
+        <input class="note-input" placeholder="e.g. 'header, top of page'" id="note-${ci}-${ii}">
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  html += `
+    <div class="cat-action-bar">
+      <div class="tally" id="tally-${ci}">0 rated</div>
+      <button class="btn" data-gen="${ci}">Generate write-up + score</button>
+    </div>
+    <div class="score-card" id="score-card-${ci}">
+      <div class="score-head">
+        <div class="score-num" id="score-num-${ci}">-<small>/7</small></div>
+        <div class="score-label" id="score-label-${ci}"></div>
+      </div>
+      <div class="report" id="report-${ci}"></div>
+      <div class="copy-row">
+        <span class="copied" id="copied-${ci}">Copied</span>
+        <button class="btn ghost small" data-copy="${ci}">Copy text</button>
+      </div>
+    </div>`;
+  panel.innerHTML = html;
+  panelsEl.appendChild(panel);
+});
+
+function updateCount(ci){
+  const rated = state[catNames[ci]].filter(s=>s.rating==='strong'||s.rating==='weak').length;
+  const total = DATA[catNames[ci]].items.length;
+  document.getElementById('count-'+ci).textContent = rated+'/'+total;
+  let strong=0, weak=0;
+  state[catNames[ci]].forEach(s=>{ if(s.rating==='strong') strong++; if(s.rating==='weak') weak++; });
+  document.getElementById('tally-'+ci).innerHTML =
+    `<b>${rated}</b>/${total} rated &middot; <span class="g">${strong} strong</span> &middot; <span class="r">${weak} weak</span>`;
+}
+
+function computeScore(cat){
+  const items = state[cat];
+  let posWeight=0, negWeight=0, ratedCount=0;
+  items.forEach(s=>{
+    if(s.rating==='strong'){ posWeight += 3; ratedCount++; }
+    else if(s.rating==='weak'){ negWeight += 3; ratedCount++; }
+  });
+  if(ratedCount===0) return null;
+  const maxPossible = ratedCount*3;
+  const net = posWeight - negWeight;
+  const ratio = net/maxPossible;
+  let score = 4 + 3*ratio;
+  score = Math.max(1, Math.min(7, score));
+  return Math.round(score*10)/10;
+}
+
+panelsEl.addEventListener('click', (e)=>{
+  const gateBtn = e.target.closest('.gate-seg button');
+  if(gateBtn){
+    const row = gateBtn.closest('.gate-seg');
+    const ci = row.dataset.cat;
+    const cat = catNames[ci];
+    const val = gateBtn.dataset.g;
+    state.gates[cat] = (state.gates[cat]===val) ? null : val;
+    row.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+    if(state.gates[cat]) gateBtn.classList.add('on');
+    const list = document.getElementById('concept-list-'+ci);
+    const banner = document.getElementById('gate-banner-'+ci);
+    if(state.gates[cat]==='Y'){
+      list.classList.add('dimmed');
+      banner.textContent = GATES[cat].overrideText.startsWith('N/A')
+        ? 'Rest of this section is skipped. Write-up will read: "' + GATES[cat].overrideText + '"'
+        : 'Rest of this section is skipped. Write-up will use the override text.';
+      banner.classList.add('show');
+    } else {
+      list.classList.remove('dimmed');
+      banner.classList.remove('show');
+    }
+    document.getElementById('score-card-'+ci).classList.remove('show');
+    return;
+  }
+  const btn = e.target.closest('.seg button');
+  if(btn){
+    const concept = btn.closest('.concept');
+    const ci = concept.dataset.cat, ii = concept.dataset.item;
+    const rating = btn.dataset.r;
+    const s = state[catNames[ci]][ii];
+    s.rating = (s.rating===rating) ? null : rating;
+    concept.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));
+    if(s.rating) concept.querySelector('[data-r="'+s.rating+'"]').classList.add('on');
+    const extra = document.getElementById('extra-'+ci+'-'+ii);
+    if(s.rating){
+      extra.classList.add('show');
+    } else {
+      extra.classList.remove('show');
+    }
+    updateCount(ci);
+    return;
+  }
+  const genBtn = e.target.closest('[data-gen]');
+  if(genBtn){
+    const ci = genBtn.dataset.gen;
+    const cat = catNames[ci];
+    const reportEl = document.getElementById('report-'+ci);
+    const scoreCard = document.getElementById('score-card-'+ci);
+    const scoreNumEl = document.getElementById('score-num-'+ci);
+    const scoreLabelEl = document.getElementById('score-label-'+ci);
+    const chip = document.getElementById('chip-'+ci);
+    const perceptionRaw = (state.perceptions[cat]||'').trim();
+    const perceptionLine = perceptionRaw ? (/[.!?]$/.test(perceptionRaw) ? perceptionRaw : perceptionRaw + '.') : '';
+    if(GATES[cat] && state.gates[cat]==='Y'){
+      reportEl.textContent = perceptionLine ? perceptionLine + ' ' + GATES[cat].overrideText : GATES[cat].overrideText;
+      const so = GATES[cat].scoreOverride;
+      if(so===null){
+        scoreNumEl.innerHTML = 'N/A';
+        scoreLabelEl.textContent = 'Not applicable';
+        chip.textContent = 'N/A';
+      } else {
+        scoreNumEl.innerHTML = so.toFixed(1)+'<small>/7</small>';
+        scoreLabelEl.textContent = SCORE_LABELS[Math.round(so)];
+        chip.textContent = so.toFixed(1);
+      }
+      chip.style.display = 'inline-block';
+      scoreCard.classList.add('show');
+      scoreCard.scrollIntoView({behavior:'smooth', block:'nearest'});
+      return;
+    }
+    const items = DATA[cat].items;
+    const strengths = [];
+    const issues = [];
+    function toList(adjStr){
+      const parts = adjStr.split(',').map(s=>s.trim());
+      if(parts.length===1) return parts[0];
+      if(parts.length===2) return parts[0]+' and '+parts[1];
+      return parts.slice(0,-1).join(', ')+', and '+parts[parts.length-1];
+    }
+    function attachNote(line, note){
+      if(!note) return line + '.';
+      let n = note.trim();
+      n = n.charAt(0).toUpperCase() + n.slice(1);
+      if(!/[.!?]$/.test(n)) n += '.';
+      return line + '. ' + n;
+    }
+    state[cat].forEach((s, ii)=>{
+      const label = items[ii][0];
+      if(s.rating==='strong'){
+        const line = label + ' feels ' + toList(items[ii][2]);
+        strengths.push(attachNote(line, s.note));
+      } else if(s.rating==='weak'){
+        const line = label + ' feels ' + toList(items[ii][3]);
+        issues.push({text: attachNote(line, s.note), label: label});
+      }
+    });
+    if(strengths.length===0 && issues.length===0 && !perceptionLine){
+      reportEl.innerHTML = '<span class="empty-cat">Rate at least one concept as Strong or Weak (or add a note below) to generate a write-up.</span>';
+      scoreNumEl.innerHTML = '-<small>/7</small>';
+      scoreLabelEl.textContent = 'Not yet rated';
+      chip.style.display = 'none';
+    } else if(strengths.length===0 && issues.length===0){
+      reportEl.textContent = perceptionLine;
+      scoreNumEl.innerHTML = '-<small>/7</small>';
+      scoreLabelEl.textContent = 'Not yet rated';
+      chip.style.display = 'none';
+    } else {
+      const paragraph = issues.map(i=>i.text).concat(strengths).join(' ');
+      const score = computeScore(cat);
+      reportEl.textContent = (perceptionLine ? perceptionLine + ' ' : '') + paragraph;
+      scoreNumEl.innerHTML = score.toFixed(1)+'<small>/7</small>';
+      scoreLabelEl.textContent = SCORE_LABELS[Math.round(score)];
+      chip.textContent = score.toFixed(1);
+      chip.style.display = 'inline-block';
+    }
+    scoreCard.classList.add('show');
+    scoreCard.scrollIntoView({behavior:'smooth', block:'nearest'});
+    return;
+  }
+  const copyBtn = e.target.closest('[data-copy]');
+  if(copyBtn){
+    const ci = copyBtn.dataset.copy;
+    const text = document.getElementById('report-'+ci).innerText;
+    navigator.clipboard.writeText(text).then(()=>{
+      const msg = document.getElementById('copied-'+ci);
+      msg.classList.add('show');
+      setTimeout(()=>msg.classList.remove('show'), 1500);
+    });
+  }
+});
+
+panelsEl.addEventListener('input', (e)=>{
+  if(e.target.classList.contains('note-input')){
+    const concept = e.target.closest('.concept');
+    const ci = concept.dataset.cat, ii = concept.dataset.item;
+    state[catNames[ci]][ii].note = e.target.value;
+    return;
+  }
+  if(e.target.classList.contains('perception-input')){
+    const ci = e.target.id.replace('perception-','');
+    state.perceptions[catNames[ci]] = e.target.value;
+  }
+});
+
+document.getElementById('resetBtn').onclick = ()=>{
+  catNames.forEach((cat, ci)=>{
+    state[cat].forEach(s=>{s.rating=null;s.note='';});
+    state.perceptions[cat] = '';
+    document.getElementById('score-card-'+ci).classList.remove('show');
+    document.getElementById('chip-'+ci).style.display = 'none';
+    if(GATES[cat]){
+      state.gates[cat] = null;
+      const list = document.getElementById('concept-list-'+ci);
+      const banner = document.getElementById('gate-banner-'+ci);
+      if(list) list.classList.remove('dimmed');
+      if(banner) banner.classList.remove('show');
+    }
+  });
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.extra-row').forEach(e=>e.classList.remove('show'));
+  document.querySelectorAll('.note-input').forEach(i=>i.value='');
+  document.querySelectorAll('.perception-input').forEach(i=>i.value='');
+  catNames.forEach((c,ci)=>updateCount(ci));
+};
+
+catNames.forEach((c,ci)=>updateCount(ci));
+</script>
+</body>
+</html>
