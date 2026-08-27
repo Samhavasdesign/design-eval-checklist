@@ -35,7 +35,79 @@
     outline:3px solid var(--focus);
     outline-offset:2px;
   }
-  .wrap{max-width:920px;margin:0 auto;padding:36px 28px 80px;}
+  .wrap{max-width:1180px;margin:0 auto;padding:36px 28px 80px;}
+  .shell{
+    display:grid;
+    grid-template-columns:240px minmax(0,1fr);
+    gap:40px;
+    align-items:start;
+  }
+  .sidenav{
+    position:sticky;
+    top:16px;
+  }
+  .sidenav-label{
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 10px;
+  }
+  .tool-link{
+    display:block;
+    width:100%;
+    text-align:left;
+    font-family:'JetBrains Mono', monospace;
+    background:var(--paper-2);
+    border:1px solid var(--line-strong);
+    padding:14px 16px;
+    margin-bottom:8px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  .tool-link:hover{background:var(--line);}
+  .tool-link.active,
+  .tool-link.active:hover{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--paper);
+  }
+  .tool-step{
+    display:block;
+    font-size:12px;
+    letter-spacing:0.08em;
+    margin-bottom:6px;
+    opacity:0.7;
+  }
+  .tool-name{
+    display:block;
+    font-family:'Newsreader', serif;
+    font-size:17px;
+    font-weight:500;
+    letter-spacing:0;
+    text-transform:none;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .tool-link.active .tool-name{color:var(--paper);}
+  .tool-desc{
+    display:block;
+    font-size:12px;
+    line-height:1.5;
+    color:var(--ink-soft);
+  }
+  .tool-link.active .tool-desc{color:var(--line);}
+  .tool-view{display:none;}
+  .tool-view.active{display:block;}
+  @media (max-width:860px){
+    .shell{grid-template-columns:1fr;gap:24px;}
+    .sidenav{position:static;display:flex;flex-wrap:wrap;gap:8px;}
+    .sidenav-label{flex:1 0 100%;margin-bottom:2px;}
+    .tool-link{flex:1 1 240px;width:auto;margin-bottom:0;}
+    .tool-desc{display:none;}
+  }
   header{
     border-bottom:2px solid var(--ink);
     padding-bottom:18px;
@@ -375,11 +447,6 @@
   }
   .copied{color:var(--green);font-size:12px;opacity:0;transition:opacity 0.2s;}
   .copied.show{opacity:1;}
-  .module-divider{
-    height:2px;
-    background:var(--ink);
-    margin:36px 0 28px;
-  }
   .prompt-module{
     padding-bottom:12px;
   }
@@ -457,24 +524,48 @@
     <div class="stamp">for review</div>
   </header>
 
-  <div class="topnav" id="topnav">
-    <div class="tabs" id="tabs"></div>
-    <button class="btn ghost small" id="resetBtn">Reset all</button>
+  <div class="shell">
+
+    <nav class="sidenav" id="sidenav" aria-label="Tools">
+      <p class="sidenav-label">Tools</p>
+      <button class="tool-link active" type="button" data-tool="0" aria-current="page">
+        <span class="tool-step">01</span>
+        <span class="tool-name">Decode a prompt</span>
+        <span class="tool-desc">Turn vague design prompts into clear requirements, priorities, and evaluation criteria.</span>
+      </button>
+      <button class="tool-link" type="button" data-tool="1">
+        <span class="tool-step">02</span>
+        <span class="tool-name">Evaluate a design</span>
+        <span class="tool-desc">Use a structured framework to judge prompt adherence, visual quality, usability, and overall execution.</span>
+      </button>
+    </nav>
+
+    <main class="tool-main">
+
+      <section class="tool-view active" id="tool-0" aria-labelledby="tool-0-title">
+        <section class="prompt-module">
+          <h2 class="module-title" id="tool-0-title">What is this prompt looking for?</h2>
+          <p class="module-sub">Paste the AI prompt below. This pulls out what the response actually needs to nail, ranked by importance where that's a meaningful thing to do.</p>
+          <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..."></textarea>
+          <div class="module-action-bar">
+            <span class="module-status" id="promptStatus"></span>
+            <button class="btn" id="analyzeBtn">Find what it's looking for</button>
+          </div>
+          <div class="prompt-output" id="promptOutput"></div>
+        </section>
+      </section>
+
+      <section class="tool-view" id="tool-1" aria-label="Evaluate a design">
+        <div class="topnav" id="topnav">
+          <div class="tabs" id="tabs"></div>
+          <button class="btn ghost small" id="resetBtn">Reset all</button>
+        </div>
+        <div id="panels"></div>
+      </section>
+
+    </main>
+
   </div>
-  <div id="panels"></div>
-
-  <div class="module-divider"></div>
-
-  <section class="prompt-module">
-    <h2 class="module-title">What is this prompt looking for?</h2>
-    <p class="module-sub">Paste the AI prompt below. This pulls out what the response actually needs to nail, ranked by importance where that's a meaningful thing to do.</p>
-    <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..."></textarea>
-    <div class="module-action-bar">
-      <span class="module-status" id="promptStatus"></span>
-      <button class="btn" id="analyzeBtn">Find what it's looking for</button>
-    </div>
-    <div class="prompt-output" id="promptOutput"></div>
-  </section>
 
 </div>
 
@@ -1061,6 +1152,7 @@ catNames.forEach((c,ci)=>updateCount(ci));
 
 // Collapse the nav to just the active pill once it sticks to the top.
 const syncStuck = ()=>{
+  if(!document.getElementById('tool-1').classList.contains('active')) return;
   const stuck = topnavEl.getBoundingClientRect().top <= 0;
   topnavEl.classList.toggle('stuck', stuck);
   if(!stuck) closeNavMenu();
@@ -1068,6 +1160,23 @@ const syncStuck = ()=>{
 window.addEventListener('scroll', syncStuck, {passive:true});
 window.addEventListener('resize', syncStuck);
 syncStuck();
+
+// Switch between the two tools: decode a prompt, evaluate a design.
+const toolLinks = document.querySelectorAll('.tool-link');
+function selectTool(ti){
+  ti = +ti;
+  toolLinks.forEach(l=>{
+    const on = +l.dataset.tool === ti;
+    l.classList.toggle('active', on);
+    if(on) l.setAttribute('aria-current','page');
+    else l.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('.tool-view').forEach((v, vi)=>v.classList.toggle('active', vi===ti));
+  closeNavMenu();
+  window.scrollTo({top:0});
+  syncStuck();
+}
+toolLinks.forEach(l=>{ l.onclick = ()=>selectTool(l.dataset.tool); });
 </script>
 </body>
 </html>
