@@ -84,6 +84,9 @@
     border-bottom:1px solid var(--line-strong);
   }
   .topnav .btn{flex:0 0 auto;align-self:flex-start;margin-left:auto;}
+  .topnav.stuck{align-items:center;}
+  .topnav.stuck .btn{align-self:center;}
+  .topnav.stuck .tab:not(.active){display:none;}
   .tabs{
     display:flex;
     gap:2px;
@@ -967,6 +970,15 @@ document.getElementById('resetBtn').onclick = ()=>{
 };
 
 catNames.forEach((c,ci)=>updateCount(ci));
+
+// Collapse the nav to just the active pill once it sticks to the top.
+const topnavEl = document.getElementById('topnav');
+const syncStuck = ()=>{
+  topnavEl.classList.toggle('stuck', topnavEl.getBoundingClientRect().top <= 0);
+};
+window.addEventListener('scroll', syncStuck, {passive:true});
+window.addEventListener('resize', syncStuck);
+syncStuck();
 </script>
 </body>
 </html>
