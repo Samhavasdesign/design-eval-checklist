@@ -71,13 +71,6 @@
     border-color:var(--ink);
     color:var(--paper);
   }
-  .tool-step{
-    display:block;
-    font-size:12px;
-    letter-spacing:0.08em;
-    margin-bottom:6px;
-    opacity:0.7;
-  }
   .tool-name{
     display:block;
     font-family:'Newsreader', serif;
@@ -403,6 +396,11 @@
   }
   .btn.ghost:hover{background:var(--line);}
   .btn.small{padding:6px 12px;font-size:12px;}
+  .btn:disabled{
+    opacity:0.55;
+    cursor:not-allowed;
+    pointer-events:none;
+  }
   .label-short{display:none;}
   #resetBtn{display:none;}
   #resetBtn.show{display:inline-block;}
@@ -468,6 +466,21 @@
     line-height:1.5;
   }
   .prompt-textarea::placeholder{color:var(--ink-soft);}
+  .prompt-upload{
+    margin-top:8px;
+  }
+  .prompt-upload .btn{width:100%;}
+  .prompt-upload input{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
   .module-action-bar{
     display:flex;
     justify-content:space-between;
@@ -482,8 +495,20 @@
     font-style:italic;
   }
   .module-status.err{color:var(--red);font-style:normal;}
-  .prompt-output{
+  .prompt-result{
+    display:none;
     margin-top:18px;
+    background:#fff;
+    border:1px solid var(--line-strong);
+  }
+  .prompt-result.show{display:block;}
+  .prompt-output{
+    padding:20px 22px 8px;
+  }
+  .prompt-output .empty-cat{
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size:14px;
   }
   .prompt-section-label{
     font-family:'JetBrains Mono', monospace;
@@ -503,7 +528,20 @@
   }
   .prompt-list li{margin-bottom:8px;}
   .prompt-list.ranked{list-style:decimal;}
-  .prompt-list:not(.ranked){list-style:disc;}
+  .prompt-list:not(.ranked):not(.flags){list-style:disc;}
+  .prompt-list.flags{list-style:none;padding-left:0;}
+  .prompt-list.flags li{
+    position:relative;
+    padding-left:22px;
+    color:var(--red);
+  }
+  .prompt-list.flags li::before{
+    content:"\25B2";
+    position:absolute;
+    left:0;
+    font-size:11px;
+    top:0.35em;
+  }
 
   /* ---- Mobile ------------------------------------------------------- */
   @media (max-width:600px){
@@ -515,7 +553,6 @@
     .sidenav{gap:0;}
     .tool-link{flex:1 1 0;min-width:0;padding:12px 10px;min-height:52px;border-right-width:0;}
     .tool-link:last-child{border-right-width:1px;}
-    .tool-step{display:none;}
     .tool-name{font-size:15px;margin-bottom:0;}
 
     /* Category nav is always the active pill plus a dropdown */
@@ -569,6 +606,7 @@
     .module-action-bar .btn{width:100%;}
     .score-head{flex-wrap:wrap;padding:16px 16px 12px;gap:6px 12px;}
     .report{padding:16px;}
+    .prompt-output{padding:16px 16px 8px;}
     .copy-row{padding:0 16px 16px;}
     .score-card{scroll-margin-top:76px;}
   }
@@ -582,18 +620,15 @@
       <h1>Design evaluation toolkit</h1>
       <p>Decode a prompt, then evaluate the design against it</p>
     </div>
-    <div class="stamp">for review</div>
   </header>
 
   <div class="shell">
 
     <nav class="sidenav" id="sidenav" aria-label="Tools">
       <button class="tool-link active" type="button" data-tool="0" aria-current="page">
-        <span class="tool-step">01</span>
         <span class="tool-name">Decode a prompt</span>
       </button>
       <button class="tool-link" type="button" data-tool="1">
-        <span class="tool-step">02</span>
         <span class="tool-name">Evaluate a design</span>
       </button>
     </nav>
@@ -607,11 +642,22 @@
         </div>
         <section class="prompt-module">
           <textarea id="promptInput" class="prompt-textarea" placeholder="Paste the prompt here..." aria-label="AI prompt to decode"></textarea>
+          <div class="prompt-upload">
+            <input id="screenshotInput" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
+            <button class="btn ghost" type="button" id="uploadShotBtn">Upload a screenshot</button>
+          </div>
           <div class="module-action-bar">
             <span class="module-status" id="promptStatus"></span>
             <button class="btn" id="analyzeBtn">Find what it's looking for</button>
           </div>
-          <div class="prompt-output" id="promptOutput"></div>
+          <div class="prompt-result" id="promptResult">
+            <div class="prompt-output" id="promptOutput" aria-live="polite"></div>
+            <div class="copy-row">
+              <span class="copied" id="promptCopied">Copied</span>
+              <button class="btn ghost small" type="button" id="copyPromptBtn">Copy</button>
+              <button class="btn ghost small" type="button" id="clearPromptBtn">Clear</button>
+            </div>
+          </div>
         </section>
       </section>
 
@@ -690,68 +736,322 @@ function analyzeExplicit(text){
 
 function analyzeImplicit(text){
   const items = [];
+  const flags = [];
+  const add = (arr, s) => { if(!arr.includes(s)) arr.push(s); };
 
-  const roleMatch = text.match(/you are (?:an?|the)\s+([^.,\n]{3,60})/i);
-  if(roleMatch) items.push('Respond in the voice/expertise of ' + roleMatch[1].trim());
+  // Persona / voice
+  const role = text.match(/\b(?:you are|act as|speak as|respond as)\s+(?:an?|the)\s+([^.,;:\n]{3,60})/i)
+            || text.match(/\bas an? ([a-z][a-z ]{3,40}?),\s*(?:write|create|build|design|explain|draft)/i);
+  if(role) add(items, 'Write in the voice and expertise of ' + role[1].trim());
 
-  const audienceMatch = text.match(/for (?:my|our|a|an)\s+[a-z\s]{2,30}?(?:audience|reader|readers|client|clients|team|customer|customers|beginner|beginners|kids|children|student|students|boss|manager)/i);
-  if(audienceMatch) items.push('Tailor tone and complexity for: ' + audienceMatch[0].trim());
+  // Output language / locale
+  const lang = text.match(/\b(?:in|into|translated? (?:in)?to|localis?ed? (?:in)?to|written in)\s+((?:[A-Z][a-z]+\s+)?(?:Arabic|Darija|Spanish|Castilian|French|German|Portuguese|Italian|Dutch|Japanese|Chinese|Mandarin|Cantonese|Korean|Hindi|Urdu|Bengali|Turkish|Russian|Polish|Ukrainian|Swedish|Norwegian|Danish|Finnish|Vietnamese|Thai|Indonesian|Malay|Hebrew|Farsi|Persian|Greek|Tagalog|Filipino|Swahili|English))\b(?:\s*\(([^)]{1,30})\))?/);
+  if(lang){
+    add(items, 'Produce the output in ' + (lang[1] + (lang[2] ? ' (' + lang[2] + ')' : '')).trim() + ' — idiomatic, not a literal translation');
+  } else if(/[؀-ۿ]/.test(text)) add(items, 'Prompt contains Arabic-script text — write the output in that language and script');
+  else if(/[一-鿿]/.test(text)) add(items, 'Prompt contains CJK text — write the output in that language and script');
+  else if(/[Ѐ-ӿ]/.test(text)) add(items, 'Prompt contains Cyrillic text — write the output in that language');
 
-  const platformMatch = text.match(/\bfor (twitter|x|linkedin|instagram|tiktok|a blog(?: post)?|an email|a newsletter|slack|a presentation|a report|reddit)\b/i);
-  if(platformMatch) items.push('Match typical conventions for ' + platformMatch[1].trim());
-
-  if(/for example|e\.g\.|such as|here's an example|like this:/i.test(text)) {
-    items.push('Mirror the style/format shown in the example given');
+  // Audience / demographic
+  const aud = text.match(/\b(?:targeting|aimed at|geared (?:to|toward|towards)|written for|pitched to|designed for|built for|for (?:my|our))\s+((?:a |an )?[a-z][a-z0-9 ,'‘’\-–—()]{4,60}?)(?=[.;:\n]|,? (?:who|that|which)\b|$)/i);
+  if(aud){
+    const a = aud[1].trim().replace(/[,]+$/,'');
+    if(/\s/.test(a)) add(items, 'Tailor tone, vocabulary, references, and cultural framing for: ' + a);
   }
 
-  if(/\bplease\b|\bkindly\b/i.test(text)) items.push('Keep a polite, considerate tone');
-  if(/!{1,}|awesome|super excited|hey there|lol/i.test(text)) items.push('Keep a casual, upbeat tone');
-  if(/\bprofessional\b|\bformal\b|\bbusiness\b/i.test(text)) items.push('Maintain a professional register');
+  // Deliverable type
+  const kind = (text.match(/\b(landing page|home ?page|marketing site|website|web app|web page|single[- ]page app|dashboard|admin panel|mobile app|ios app|android app|browser extension|email(?: template)?|newsletter|blog post|essay|presentation|slide deck|pitch deck|report|white ?paper|resume|cv|portfolio|onboarding flow|checkout flow|sign[- ]?up flow|pricing page|API|CLI tool|form)\b/i)||[])[1];
+  if(kind) add(items, 'Follow the conventions people expect from a ' + kind.toLowerCase());
 
-  const trimmed = text.trim();
-  const hasDirective = /\b(write|create|draft|list|summarize|explain|generate|make|build|design|compare|analyze|outline)\b/i.test(text);
-  if(/\?\s*$/.test(trimmed) && !hasDirective){
-    items.push('Answer the question directly rather than just discussing around it');
+  // Channel
+  const chan = (text.match(/\b(?:for|on|post(?:ed)? to)\s+(twitter|x|linkedin|instagram|tiktok|youtube|slack|discord|reddit|hacker ?news|substack|medium)\b/i)||[])[1];
+  if(chan) add(items, 'Match the norms and length expectations of ' + chan);
+
+  // Visual / brand style
+  const styleWords = [...new Set((text.match(/\b(luxur(?:y|ious)|premium|high[- ]end|upscale|minimal(?:ist)?|clean|modern|contemporary|sleek|elegant|refined|sophisticated|playful|friendly|bold|brutalist|corporate|enterprise|retro|vintage|nostalgic|futuristic|editorial|hand[- ]drawn|organic|flat|glassmorphi\w*|neumorphi\w*|skeuomorphi\w*)\b/gi)||[]).map(s=>s.toLowerCase()))];
+  const colorPair = text.match(/\b([a-z]+)\s*(?:and|&|\/|-)\s*([a-z]+)\s+(?:colou?r|theme|palette|scheme|aesthetic|look|design|gradient)\b/i)
+                 || text.match(/\b(black|white|dark|light|navy|gold|silver|grey|gray|monochrome|red|blue|green|purple|pink|orange|teal|beige|cream)\s+(?:and|&|\/)\s+([a-z]+)\b/i);
+  const darkMode = /\bdark mode\b/i.test(text);
+  if(styleWords.length || colorPair || darkMode){
+    const bits = [];
+    if(colorPair) bits.push(colorPair[1].toLowerCase() + ' / ' + colorPair[2].toLowerCase());
+    if(styleWords.length) bits.push(styleWords.slice(0,5).join(', '));
+    if(darkMode) bits.push('dark mode');
+    add(items, 'Carry a consistent visual language (' + bits.join('; ') + ')');
   }
 
-  return items.slice(0,6);
+  // Stated goal beyond "produce the artifact"
+  if(/\b(high[- ]converting|maxim(?:ise|ize)s? conversions?|conversion[- ]optimi\w*|drive (?:sign[- ]?ups|sales|revenue|clicks|installs|leads)|increase (?:ctr|conversion|revenue|engagement)|persuasive|sales[- ]focused|call[- ]to[- ]action|funnel)\b/i.test(text)){
+    add(items, 'Optimise layout, hierarchy, and copy for the stated goal (conversion / persuasion), not just completeness');
+  }
+  if(/\b(seo|search[- ]engine|rank (?:on|in) google|organic (?:traffic|search)|keywords?)\b/i.test(text)){
+    add(items, 'Account for SEO: semantic headings, meta tags, crawlable copy');
+  }
+  if(/\b(performance|fast[- ]loading|load time|lighthouse|core web vitals|lightweight|optimi[sz]e images)\b/i.test(text)){
+    add(items, 'Keep it performant: small payload, fast first render');
+  }
+
+  // Quality bars often left implicit
+  if(/\b(accessib\w+|a11y|wcag|screen[- ]reader|aria|keyboard[- ]navigab\w+|colou?r contrast)\b/i.test(text)){
+    add(items, 'Meet accessibility expectations: semantic HTML, labels, contrast, keyboard support');
+  }
+  if(/\b(responsive|mobile[- ]friendly|mobile[- ]first|works on mobile|across (?:devices|screen sizes|breakpoints)|breakpoints?)\b/i.test(text)){
+    add(items, 'Hold up across viewport sizes — treat mobile as a first-class layout');
+  }
+  if(/\b(runnable|production[- ]ready|deploy\w*|self[- ]contained|works out of the box|no (?:build step|backend|dependencies)|copy[- ]paste and run)\b/i.test(text)){
+    add(items, 'Deliver something that runs as-is, not a sketch or pseudo-code');
+  }
+
+  // Tone
+  if(/\bplease\b|\bkindly\b/i.test(text)) add(items, 'Keep a polite, considerate tone');
+  if(/!{2,}|\bawesome\b|\bsuper excited\b|\bhey there\b|\blol\b|\bvibe\b/i.test(text)) add(items, 'Keep a casual, upbeat tone');
+  if(/\bprofessional\b|\bformal\b|\bbusiness[- ]?like\b|\bcorporate\b|\bauthoritative\b/i.test(text)) add(items, 'Maintain a professional register');
+  if(/\b(concise|brief|to the point|no fluff|tl;dr|succinct)\b/i.test(text)) add(items, 'Keep it concise — no padding');
+
+  // Example to mirror
+  if(/\b(for example|e\.g\.|such as|here'?s an example|like this:|following (?:the )?example|in the style of|similar to)\b/i.test(text)){
+    add(items, 'Mirror the style and format of the example given');
+  }
+
+  // Bare question, no directive
+  const hasDirective = /\b(write|create|draft|list|summar(?:ise|ize)|explain|generate|make|build|design|compare|analy[sz]e|outline|implement|refactor|fix|review)\b/i.test(text);
+  if(/\?\s*$/.test(text.trim()) && !hasDirective) add(items, 'Answer the question directly rather than talking around it');
+
+  // ---- Flags: weigh these, do not treat as neutral requirements ----
+  if(/\bfake\b[^.]{0,40}\b(reviews?|testimonials?|customers?|ratings?|feedback|quotes?|endorsements?)\b/i.test(text)
+     || /\b(fabricat\w+|invent(?:ed)?|made[- ]up|bogus|dummy)\b[^.]{0,40}\b(reviews?|testimonials?|social proof|quotes?|stats?|statistics|data|endorsements?)\b/i.test(text)){
+    add(flags, 'Asks for fabricated social proof (fake reviews / testimonials) — note the authenticity and ethics tension');
+  }
+  if(/\b(ignore|disregard|forget|override|set aside)\s+(?:all\s+)?(?:the\s+|any\s+|your\s+)?(?:previous|prior|earlier|above|preceding|system)\s+(?:instructions?|prompts?|messages?|context|rules?|guidance)\b/i.test(text)){
+    add(flags, 'Contains an instruction to override earlier instructions — decide deliberately which set wins');
+  }
+  if(/\b(guarantee[ds]?|guaranteed results|risk[- ]free|miracle|clinically proven|doctors? recommend)\b/i.test(text)){
+    add(flags, 'Leans on absolute or guaranteed claims — check they are truthful and defensible');
+  }
+  if(/\b(only \d+ (?:left|remaining|in stock)|limited stock|while supplies last|selling fast|act now|before it'?s gone|expires? (?:today|soon)|last chance)\b/i.test(text) || /\burgency\b/i.test(text)){
+    add(flags, 'Relies on urgency / scarcity messaging — confirm it is real, not manufactured');
+  }
+  if(/\b(collect|collecting|gather|store|storing|ask for|capture)\b[^.]{0,50}\b(full name|phone|email|address|payment|credit card|password|id number)\b/i.test(text)){
+    add(flags, 'Collects personal data — the form needs consent, validation, and a clear stated purpose');
+  }
+
+  return {items: items.slice(0, 14), flags: flags.slice(0, 6)};
+}
+
+const promptInput = document.getElementById('promptInput');
+const promptStatus = document.getElementById('promptStatus');
+const promptOutput = document.getElementById('promptOutput');
+const promptResult = document.getElementById('promptResult');
+const promptCopied = document.getElementById('promptCopied');
+
+function showPromptResult(html){
+  promptOutput.innerHTML = html;
+  promptCopied.classList.remove('show');
+  promptResult.classList.add('show');
+  promptResult.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function clearPromptResult(){
+  promptOutput.innerHTML = '';
+  promptCopied.classList.remove('show');
+  promptResult.classList.remove('show');
 }
 
 document.getElementById('analyzeBtn').onclick = ()=>{
-  const input = document.getElementById('promptInput').value.trim();
-  const statusEl = document.getElementById('promptStatus');
-  const outputEl = document.getElementById('promptOutput');
-  statusEl.classList.remove('err');
+  const input = promptInput.value.trim();
+  promptStatus.classList.remove('err');
 
   if(!input){
-    statusEl.textContent = 'Paste a prompt first.';
-    statusEl.classList.add('err');
-    outputEl.innerHTML = '';
+    promptStatus.textContent = 'Paste a prompt or upload a screenshot first.';
+    promptStatus.classList.add('err');
+    clearPromptResult();
     return;
   }
 
   const {ranked, items} = analyzeExplicit(input);
-  const implicitItems = analyzeImplicit(input);
-  statusEl.textContent = '';
+  const implicit = analyzeImplicit(input);
+  promptStatus.textContent = '';
 
-  if(items.length===0 && implicitItems.length===0){
-    outputEl.innerHTML = '<span class="empty-cat">Nothing concrete to pull out of that prompt. Try pasting more of it.</span>';
+  if(items.length===0 && implicit.items.length===0 && implicit.flags.length===0){
+    showPromptResult('<span class="empty-cat">Nothing concrete to pull out of that prompt. Try pasting more of it.</span>');
     return;
   }
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const lis = arr => arr.map(i => '<li>' + esc(i) + '</li>').join('');
 
   let html = '';
   if(items.length){
     html += '<p class="prompt-section-label">Explicit requirements</p>';
     html += ranked
-      ? '<ol class="prompt-list ranked">' + items.map(i=>'<li>'+i+'</li>').join('') + '</ol>'
-      : '<ul class="prompt-list">' + items.map(i=>'<li>'+i+'</li>').join('') + '</ul>';
+      ? '<ol class="prompt-list ranked">' + lis(items) + '</ol>'
+      : '<ul class="prompt-list">' + lis(items) + '</ul>';
   }
-  if(implicitItems.length){
+  if(implicit.items.length){
     html += '<p class="prompt-section-label">Implicit requirements</p>';
-    html += '<ul class="prompt-list">' + implicitItems.map(i=>'<li>'+i+'</li>').join('') + '</ul>';
+    html += '<ul class="prompt-list">' + lis(implicit.items) + '</ul>';
   }
-  outputEl.innerHTML = html;
+  if(implicit.flags.length){
+    html += '<p class="prompt-section-label">Flags &amp; watch-outs</p>';
+    html += '<ul class="prompt-list flags">' + lis(implicit.flags) + '</ul>';
+  }
+  showPromptResult(html);
 };
+
+document.getElementById('copyPromptBtn').onclick = ()=>{
+  const text = promptOutput.innerText.trim();
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    promptCopied.classList.add('show');
+    setTimeout(()=>promptCopied.classList.remove('show'), 1500);
+  });
+};
+
+document.getElementById('clearPromptBtn').onclick = ()=>{
+  clearPromptResult();
+  promptInput.focus();
+};
+
+const screenshotInput = document.getElementById('screenshotInput');
+const uploadShotBtn = document.getElementById('uploadShotBtn');
+const analyzeBtn = document.getElementById('analyzeBtn');
+let tesseractLoader = null;
+let ocrBusy = false;
+
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  if(tesseractLoader) return tesseractLoader;
+  tesseractLoader = new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    script.async = true;
+    script.onload = ()=>{
+      if(window.Tesseract) resolve(window.Tesseract);
+      else {
+        tesseractLoader = null;
+        reject(new Error('OCR failed to load'));
+      }
+    };
+    script.onerror = ()=>{
+      tesseractLoader = null;
+      reject(new Error('OCR failed to load'));
+    };
+    document.head.appendChild(script);
+  });
+  return tesseractLoader;
+}
+
+function setOcrBusy(busy){
+  ocrBusy = busy;
+  uploadShotBtn.disabled = busy;
+  analyzeBtn.disabled = busy;
+  uploadShotBtn.setAttribute('aria-busy', busy ? 'true' : 'false');
+}
+
+function prepareImageForOcr(file){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      const maxEdge = 1800;
+      let width = img.naturalWidth;
+      let height = img.naturalHeight;
+      if(width > maxEdge || height > maxEdge){
+        const scale = maxEdge / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob)=>{
+        if(!blob) reject(new Error('Could not read that image.'));
+        else resolve(blob);
+      }, 'image/png');
+    };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read that image. Try a PNG or JPEG screenshot.'));
+    };
+    img.src = url;
+  });
+}
+
+async function detectTextNative(blob){
+  if(typeof TextDetector !== 'function') return '';
+  try{
+    const bitmap = await createImageBitmap(blob);
+    const detector = new TextDetector();
+    const results = await detector.detect(bitmap);
+    return results.map(r=>r.rawValue).join('\n').trim();
+  } catch(err){
+    return '';
+  }
+}
+
+async function detectTextTesseract(blob){
+  promptStatus.textContent = 'Loading scanner…';
+  const Tesseract = await loadTesseract();
+  const result = await Tesseract.recognize(blob, 'eng', {
+    logger: (m)=>{
+      if(!ocrBusy) return;
+      if(m.status === 'recognizing text'){
+        promptStatus.textContent = 'Scanning screenshot… ' + Math.round((m.progress || 0) * 100) + '%';
+      } else if(m.status){
+        promptStatus.textContent = 'Scanning screenshot…';
+      }
+    }
+  });
+  return (result && result.data && result.data.text || '').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+uploadShotBtn.onclick = ()=>{
+  if(ocrBusy) return;
+  screenshotInput.click();
+};
+
+screenshotInput.addEventListener('change', async ()=>{
+  const file = screenshotInput.files && screenshotInput.files[0];
+  screenshotInput.value = '';
+  if(!file) return;
+
+  if(!file.type.startsWith('image/') && !/\.(png|jpe?g|webp|gif|heic|heif)$/i.test(file.name)){
+    promptStatus.classList.add('err');
+    promptStatus.textContent = 'Choose an image file.';
+    return;
+  }
+  if(file.size > 15 * 1024 * 1024){
+    promptStatus.classList.add('err');
+    promptStatus.textContent = 'That image is too large. Try a screenshot under 15 MB.';
+    return;
+  }
+
+  promptStatus.classList.remove('err');
+  setOcrBusy(true);
+  promptStatus.textContent = 'Scanning screenshot…';
+
+  try{
+    const prepared = await prepareImageForOcr(file);
+    let text = await detectTextNative(prepared);
+    if(!text) text = await detectTextTesseract(prepared);
+    if(!text){
+      promptStatus.classList.add('err');
+      promptStatus.textContent = 'Couldn\'t find any text in that screenshot.';
+      return;
+    }
+    promptInput.value = text;
+    promptInput.focus();
+    promptStatus.textContent = 'Text extracted. Review it, then find what it\'s looking for.';
+  } catch(err){
+    promptStatus.classList.add('err');
+    promptStatus.textContent = err && err.message ? err.message : 'Couldn\'t scan that screenshot.';
+  } finally{
+    setOcrBusy(false);
+  }
+});
 </script>
 
 <script>
