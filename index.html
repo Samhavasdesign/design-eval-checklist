@@ -230,7 +230,6 @@
     border-color:var(--ink);
   }
   .tab.active:hover{background:var(--ink);}
-  .tab .count{margin-left:6px;}
   .tab .score-chip{
     margin-left:8px;
     background:var(--red);
@@ -935,7 +934,7 @@ catNames.forEach((cat, ci)=>{
   tab.setAttribute('aria-controls','panel-'+ci);
   tab.setAttribute('aria-haspopup','menu');
   tab.setAttribute('aria-expanded','false');
-  tab.innerHTML = cat + ' <span class="count" id="count-'+ci+'">0/'+DATA[cat].items.length+'</span><span class="score-chip" id="chip-'+ci+'" style="display:none;"></span>';
+  tab.innerHTML = cat + '<span class="score-chip" id="chip-'+ci+'" style="display:none;"></span>';
   tab.onclick = ()=>{
     // When collapsed to a single pill, the active pill acts as a menu toggle.
     if(navCollapsed() && tab.classList.contains('active')){
@@ -1045,7 +1044,6 @@ document.addEventListener('keydown', (e)=>{
 function updateCount(ci){
   const rated = state[catNames[ci]].filter(s=>s.rating==='strong'||s.rating==='weak').length;
   const total = DATA[catNames[ci]].items.length;
-  document.getElementById('count-'+ci).textContent = rated+'/'+total;
   let strong=0, weak=0;
   state[catNames[ci]].forEach(s=>{ if(s.rating==='strong') strong++; if(s.rating==='weak') weak++; });
   document.getElementById('tally-'+ci).innerHTML =
