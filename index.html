@@ -50,13 +50,6 @@
     position:sticky;
     top:16px;
   }
-  .sidenav-label{
-    font-size:12px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--ink-soft);
-    margin:0 0 10px;
-  }
   .tool-link{
     display:block;
     width:100%;
@@ -93,11 +86,11 @@
     letter-spacing:0;
     text-transform:none;
     color:var(--ink);
-    margin-bottom:5px;
   }
   .tool-link.active .tool-name{color:var(--paper);}
   .tool-desc{
-    display:block;
+    display:none;
+    margin-top:8px;
     font-size:12px;
     line-height:1.5;
     color:var(--ink-soft);
@@ -105,12 +98,14 @@
   .tool-link.active .tool-desc{color:var(--line);}
   .tool-view{display:none;}
   .tool-view.active{display:block;}
+  @media (min-width:861px){
+    .tool-link:hover .tool-desc,
+    .tool-link:focus-visible .tool-desc{display:block;}
+  }
   @media (max-width:860px){
     .shell{grid-template-columns:1fr;gap:24px;}
     .sidenav{position:static;display:flex;flex-wrap:wrap;gap:8px;}
-    .sidenav-label{flex:1 0 100%;margin-bottom:2px;}
     .tool-link{flex:1 1 240px;width:auto;margin-bottom:0;}
-    .tool-desc{display:none;}
   }
   header{
     border-bottom:2px solid var(--ink);
@@ -602,7 +597,6 @@
   <div class="shell">
 
     <nav class="sidenav" id="sidenav" aria-label="Tools">
-      <p class="sidenav-label">Tools</p>
       <button class="tool-link active" type="button" data-tool="0" aria-current="page">
         <span class="tool-step">01</span>
         <span class="tool-name">Decode a prompt</span>
