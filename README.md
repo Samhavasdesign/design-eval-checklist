@@ -16,26 +16,40 @@ are inline; the only external requests are Google Fonts.
 3. **AI mode** — paste the prompt, upload the screens it produced, and Claude
    judges prompt adherence against them.
 
-### AI mode and your API key
+### AI mode
 
-AI mode is the only part that calls out to a model. It uses the official
-[Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript)
-loaded from a CDN, running in the browser with `dangerouslyAllowBrowser`, and
-calls `claude-opus-5` with adaptive thinking and a JSON-schema structured
-output.
+AI mode is the only part that calls out to a model. It runs through a Vercel
+serverless function at `api/evaluate.js`, which calls `claude-opus-5` with
+adaptive thinking and a JSON-schema structured output using the official
+[Anthropic SDK](https://github.com/anthropics/anthropic-sdk-typescript).
 
-**Your key never touches this repo or any server of ours.** It is stored in
-`localStorage` in your own browser and sent only to `api.anthropic.com`. Each
-run bills your own Anthropic account (a few cents, driven mostly by how many
-screens you upload). Clear the key field and press Save to forget it.
+**The API key lives only in Vercel's environment.** It is never in this repo,
+never sent to the browser, and never visible to anyone using the site. Every
+run bills the account behind that key, which is why the endpoint is passcode
+gated.
 
-Screenshots are downscaled to a 1568px long edge in the browser before being
-sent, which keeps requests well under the API's size cap and avoids paying for
-resolution the model discards.
+Screenshots are downscaled to a 1400px long edge in the browser before upload —
+it keeps the request under Vercel's 4.5 MB body cap and avoids paying for
+resolution the model discards. Up to 10 screens per run.
 
 Requirements a static screenshot cannot settle — responsive behaviour, working
 forms, link destinations — are reported as **"can't be judged from a
 screenshot"** rather than guessed at, and don't drag the score down.
+
+AI mode does not work against a plain static server (`python3 -m http.server`);
+the other two tools do. Use `vercel dev` to exercise it locally.
+
+#### Required environment variables
+
+Set both in Vercel (Settings → Environment Variables, or `vercel env add`):
+
+| Variable | Purpose |
+|---|---|
+| `ANTHROPIC_API_KEY` | Your Anthropic API key. Billed per evaluation. |
+| `APP_PASSCODE` | Shared passcode users must enter before the endpoint will answer. |
+
+The function **fails closed**: if either variable is missing it refuses every
+request rather than running unprotected.
 
 ## What it does
 
@@ -73,5 +87,7 @@ Hosted on **Vercel**, deployed automatically from the `main` branch.
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The entire app — markup, styles, and logic |
-| `vercel.json` | Vercel static hosting config |
+| `index.html` | The whole front end — markup, styles, and logic |
+| `api/evaluate.js` | Serverless function: holds the API key, gates on the passcode, calls Claude |
+| `vercel.json` | Hosting config (clean URLs, 60s function timeout) |
+| `package.json` | Declares the Anthropic SDK for the function |

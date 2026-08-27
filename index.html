@@ -72,7 +72,10 @@
     color:var(--paper);
   }
   .tool-name{
-    display:block;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
     font-family:'Newsreader', serif;
     font-size:17px;
     font-weight:500;
@@ -81,6 +84,24 @@
     color:var(--ink);
   }
   .tool-link.active .tool-name{color:var(--paper);}
+  .sparkle-icon{
+    flex:0 0 auto;
+    width:15px;
+    height:15px;
+    display:block;
+    color:inherit;
+  }
+  .beta-mark{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:0.1em;
+    color:var(--red);
+  }
+  .tool-link.active .beta-mark{
+    color:var(--paper);
+    opacity:0.7;
+  }
   .tool-view{display:none;}
   .tool-view.active{display:block;}
   .tool-header{margin-bottom:24px;}
@@ -90,6 +111,21 @@
     font-size:22px;
     letter-spacing:-0.01em;
     margin:0 0 6px;
+  }
+  .tool-title-ai{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .tool-title-ai .sparkle-icon{
+    width:18px;
+    height:18px;
+    position:relative;
+    top:1px;
+  }
+  .tool-title-ai .beta-mark{
+    font-size:11px;
+    letter-spacing:0.12em;
   }
   .tool-header p{
     margin:0;
@@ -746,7 +782,9 @@
     .sidenav{gap:0;}
     .tool-link{flex:1 1 0;min-width:0;padding:12px 10px;min-height:52px;border-right-width:0;}
     .tool-link:last-child{border-right-width:1px;}
-    .tool-name{font-size:15px;margin-bottom:0;}
+    .tool-name{font-size:14px;margin-bottom:0;gap:6px;}
+    .sparkle-icon{width:13px;height:13px;}
+    .beta-mark{font-size:9px;}
 
     /* Category nav is always the active pill plus a dropdown */
     .topnav{padding:10px 0;gap:8px;align-items:center;flex-wrap:nowrap;}
@@ -835,7 +873,13 @@
         <span class="tool-name">Evaluate a design</span>
       </button>
       <button class="tool-link" type="button" data-tool="2">
-        <span class="tool-name">AI mode</span>
+        <span class="tool-name">
+          <svg class="sparkle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M12 2.4c.28 2.04 1.32 3.9 2.9 5.36 1.5 1.48 3.4 2.48 5.5 2.74-2.1.26-4 1.26-5.5 2.74-1.58 1.46-2.62 3.32-2.9 5.36-.28-2.04-1.32-3.9-2.9-5.36C7.6 11.76 5.7 10.76 3.6 10.5c2.1-.26 4-1.26 5.5-2.74C10.68 6.3 11.72 4.44 12 2.4Z"/>
+            <path fill="currentColor" d="M19.1 15.15c.16 1 .66 1.9 1.42 2.58.74.7 1.68 1.16 2.7 1.3-1.02.14-1.96.6-2.7 1.3-.76.68-1.26 1.58-1.42 2.58-.16-1-.66-1.9-1.42-2.58-.74-.7-1.68-1.16-2.7-1.3 1.02-.14 1.96-.6 2.7-1.3.76-.68 1.26-1.58 1.42-2.58Z"/>
+          </svg>
+          AI Mode <span class="beta-mark">(BETA)</span>
+        </span>
       </button>
     </nav>
 
@@ -881,7 +925,13 @@
 
       <section class="tool-view" id="tool-2" aria-labelledby="tool-2-title">
         <div class="tool-header">
-          <h2 id="tool-2-title">AI mode</h2>
+          <h2 id="tool-2-title" class="tool-title-ai">
+            <svg class="sparkle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M12 2.4c.28 2.04 1.32 3.9 2.9 5.36 1.5 1.48 3.4 2.48 5.5 2.74-2.1.26-4 1.26-5.5 2.74-1.58 1.46-2.62 3.32-2.9 5.36-.28-2.04-1.32-3.9-2.9-5.36C7.6 11.76 5.7 10.76 3.6 10.5c2.1-.26 4-1.26 5.5-2.74C10.68 6.3 11.72 4.44 12 2.4Z"/>
+              <path fill="currentColor" d="M19.1 15.15c.16 1 .66 1.9 1.42 2.58.74.7 1.68 1.16 2.7 1.3-1.02.14-1.96.6-2.7 1.3-.76.68-1.26 1.58-1.42 2.58-.16-1-.66-1.9-1.42-2.58-.74-.7-1.68-1.16-2.7-1.3 1.02-.14 1.96-.6 2.7-1.3.76-.68 1.26-1.58 1.42-2.58Z"/>
+            </svg>
+            AI Mode <span class="beta-mark">(BETA)</span>
+          </h2>
           <p>Paste the prompt, upload the screens it produced, and Claude judges how faithfully the result follows the prompt.</p>
         </div>
 
@@ -911,11 +961,11 @@
             <div class="shot-grid" id="aiShotGrid"></div>
 
             <div class="key-row" id="aiKeyRow">
-              <label class="key-label" for="aiKeyInput">Anthropic API key</label>
-              <input id="aiKeyInput" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+              <label class="key-label" for="aiKeyInput">Passcode</label>
+              <input id="aiKeyInput" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Shared passcode">
               <button class="btn ghost small" type="button" id="aiKeySaveBtn">Save</button>
             </div>
-            <p class="key-note" id="aiKeyNote">Stored in this browser only, never sent anywhere but Anthropic. Each run costs a few cents against your own account.</p>
+            <p class="key-note" id="aiKeyNote">Remembered in this browser so you only enter it once.</p>
 
             <div class="module-action-bar">
               <button class="btn" type="button" id="aiRunBtn">Evaluate adherence</button>
@@ -1809,10 +1859,12 @@ toolLinks.forEach(l=>{ l.onclick = ()=>selectTool(l.dataset.tool); });
 <script type="module">
 /* ---- AI mode: judge screenshots against the prompt with Claude ------- */
 
-const KEY_STORE = 'anthropic_api_key';
-const MAX_SHOTS = 12;
-const MAX_EDGE = 1568;          // matches the model's long-edge limit; avoids paying for detail it discards
-const SDK_URL = 'https://esm.sh/@anthropic-ai/sdk';
+const KEY_STORE = 'design_eval_passcode';
+const MAX_SHOTS = 10;
+const MAX_EDGE = 1400;          // downscaled in-browser: the model discards more detail than this anyway
+const JPEG_QUALITY = 0.82;
+const MAX_PAYLOAD_BYTES = 3.4 * 1024 * 1024;   // Vercel caps a function request body at 4.5 MB
+const ENDPOINT = '/api/evaluate';
 
 const el = (id)=>document.getElementById(id);
 const step1 = el('aiStep1'), step2 = el('aiStep2');
@@ -1826,7 +1878,6 @@ const scoreNum = el('aiScoreNum'), scoreLabel = el('aiScoreLabel');
 const shots = [];               // {id, name, mediaType, base64, url}
 let savedPrompt = '';
 let running = false;
-let AnthropicCtor = null;
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -1890,7 +1941,7 @@ function toDownscaledJpeg(file){
       ctx.fillRect(0, 0, w, h);
       ctx.drawImage(img, 0, 0, w, h);
       URL.revokeObjectURL(url);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
       const base64 = dataUrl.split(',')[1];
       if(!base64) reject(new Error('Could not read that image.'));
       else resolve({base64, url:dataUrl});
@@ -1959,10 +2010,10 @@ function paintKeyState(){
   const k = readKey();
   keyInput.value = k;
   if(k){
-    keyNote.textContent = 'Key saved in this browser. Clear the field and press Save to forget it.';
+    keyNote.textContent = 'Passcode saved in this browser. Clear the field and press Save to forget it.';
     keyNote.classList.add('saved');
   } else {
-    keyNote.textContent = 'Stored in this browser only, never sent anywhere but Anthropic. Each run costs a few cents against your own account.';
+    keyNote.textContent = 'Remembered in this browser so you only enter it once.';
     keyNote.classList.remove('saved');
   }
 }
@@ -1974,68 +2025,9 @@ paintKeyState();
 
 /* ---- The evaluation -------------------------------------------------- */
 
-const RUBRIC = `Rank the design by how completely it satisfies the explicit request, necessary implied expectations, constraints, and supplied references. Do not reward unrequested extras or penalize missing optional enhancements. 1 = unusable, 4 = acceptable, 7 = excellent.`;
-
-const SYSTEM = `You are a design reviewer judging how faithfully a built design follows the prompt it was made from. You are shown the original prompt and screenshots of the finished result, one per screen or page, in order.
-
-Work through the prompt and break it into individual requirements — both explicitly stated ones and the expectations a competent designer would necessarily infer (output language, audience, deliverable conventions, stated goals, visual direction). Judge each against what the screenshots actually show.
-
-Verdicts:
-- "met" — the screenshots clearly show this satisfied.
-- "partial" — attempted but incomplete or weakly executed.
-- "missing" — the prompt asked for it and it is not there.
-- "unverifiable" — a static screenshot cannot settle it (responsive behaviour, working forms, runtime behaviour, link destinations, performance). Never guess these; mark them unverifiable and say what would settle it.
-
-Cite the screen number for anything you claim to see. Do not invent detail that is not visible. Judge only adherence to the prompt — not whether the design is good.
-
-Score with this rubric: ${RUBRIC} Unverifiable items must not drag the score down; score on what you could actually check.`;
-
-const SCHEMA = {
-  type: 'object',
-  properties: {
-    overall_score: {type: 'integer', minimum: 1, maximum: 7},
-    score_rationale: {type: 'string', description: 'One or two sentences justifying the score against the rubric.'},
-    summary: {type: 'string', description: 'A short paragraph on how faithfully the result follows the prompt, leading with what is missing.'},
-    requirements: {
-      type: 'array',
-      description: 'Every requirement drawn from the prompt, most consequential first.',
-      items: {
-        type: 'object',
-        properties: {
-          requirement: {type: 'string'},
-          kind: {type: 'string', enum: ['explicit', 'implicit']},
-          verdict: {type: 'string', enum: ['met', 'partial', 'missing', 'unverifiable']},
-          evidence: {type: 'string', description: 'What in the screenshots settles this, or what would be needed to settle it.'},
-          screens: {type: 'array', items: {type: 'integer'}, description: '1-based screen numbers supporting the verdict.'}
-        },
-        required: ['requirement', 'kind', 'verdict', 'evidence', 'screens'],
-        additionalProperties: false
-      }
-    }
-  },
-  required: ['overall_score', 'score_rationale', 'summary', 'requirements'],
-  additionalProperties: false
-};
-
-async function loadSDK(){
-  if(AnthropicCtor) return AnthropicCtor;
-  const mod = await import(SDK_URL);
-  AnthropicCtor = mod.default || mod.Anthropic;
-  if(!AnthropicCtor) throw new Error('Could not load the Anthropic SDK.');
-  return AnthropicCtor;
-}
-
-function buildContent(){
-  const content = [];
-  shots.forEach((s, i)=>{
-    content.push({type:'text', text:`Screen ${i+1}:`});
-    content.push({type:'image', source:{type:'base64', media_type:s.mediaType, data:s.base64}});
-  });
-  content.push({
-    type: 'text',
-    text: `Here is the prompt the design was built from:\n\n<prompt>\n${savedPrompt}\n</prompt>\n\nThe ${shots.length} screen${shots.length===1?'':'s'} above ${shots.length===1?'is':'are'} the finished result, in order. Evaluate how faithfully it follows the prompt.`
-  });
-  return content;
+function payloadBytes(){
+  // base64 is ~3/4 payload bytes; add slack for the JSON envelope.
+  return shots.reduce((n, s)=> n + s.base64.length * 0.75, 0) + savedPrompt.length + 2048;
 }
 
 const SCORE_WORDS = {7:'Excellent', 6:'Very good', 5:'Good', 4:'Acceptable', 3:'Poor', 2:'Very poor', 1:'Unusable'};
@@ -2093,69 +2085,54 @@ function setRunning(on){
 runBtn.onclick = async ()=>{
   if(running) return;
 
-  const key = readKey() || keyInput.value.trim();
+  const code = readKey() || keyInput.value.trim();
   const prompt = savedPrompt || promptInput.value.trim();
 
   if(!prompt){ setStatus(runStatus, 'Add the prompt in step 1 first.', true); return; }
   if(!shots.length){ setStatus(runStatus, 'Add at least one screenshot.', true); return; }
-  if(!key){ setStatus(runStatus, 'Add your Anthropic API key above.', true); keyInput.focus(); return; }
+  if(!code){ setStatus(runStatus, 'Enter the passcode above.', true); keyInput.focus(); return; }
 
   savedPrompt = prompt;
+
+  if(payloadBytes() > MAX_PAYLOAD_BYTES){
+    setStatus(runStatus, `Those ${shots.length} screens are too large to send at once. Remove one or two and retry.`, true);
+    return;
+  }
+
   setRunning(true);
-  setStatus(runStatus, 'Loading…', false);
+  setStatus(runStatus, `Reading ${shots.length} screen${shots.length===1?'':'s'} against the prompt\u2026 this can take up to a minute.`, false);
 
   try{
-    const Anthropic = await loadSDK();
-    const client = new Anthropic({apiKey: key, dangerouslyAllowBrowser: true});
-
-    setStatus(runStatus, `Reading ${shots.length} screen${shots.length===1?'':'s'} against the prompt…`, false);
-
-    const stream = client.messages.stream({
-      model: 'claude-opus-5',
-      max_tokens: 16000,
-      thinking: {type: 'adaptive'},
-      system: SYSTEM,
-      messages: [{role: 'user', content: buildContent()}],
-      output_config: {format: {type: 'json_schema', schema: SCHEMA}}
+    const resp = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {'content-type': 'application/json', 'x-app-passcode': code},
+      body: JSON.stringify({
+        prompt: savedPrompt,
+        images: shots.map(s=>({media_type: s.mediaType, data: s.base64}))
+      })
     });
 
-    const message = await stream.finalMessage();
+    let data = null;
+    try{ data = await resp.json(); } catch(e){ /* non-JSON error page */ }
 
-    if(message.stop_reason === 'refusal'){
-      setStatus(runStatus, 'Claude declined to evaluate this one.', true);
+    if(!resp.ok){
+      let msg = (data && data.error) || `Request failed (${resp.status}).`;
+      if(resp.status === 401) msg = 'Wrong passcode.';
+      else if([404, 405, 501].includes(resp.status)) msg = 'No evaluation endpoint here — AI mode runs on the deployed site, not a plain static server.';
+      else if(resp.status === 413) msg = 'Those screens were too large. Remove one or two and retry.';
+      else if(resp.status === 504) msg = 'The evaluation timed out. Try again with fewer screens.';
+      setStatus(runStatus, msg, true);
       return;
     }
 
-    const text = (message.content || [])
-      .filter(b=>b.type === 'text')
-      .map(b=>b.text)
-      .join('')
-      .trim();
-
-    let data;
-    try{
-      data = JSON.parse(text);
-    } catch(err){
-      outputBox.innerHTML = `<p class="ai-summary">${esc(text)}</p>`;
-      scoreNum.innerHTML = '-<small>/7</small>';
-      scoreLabel.textContent = '';
-      resultBox.classList.add('show');
-      setStatus(runStatus, 'Returned an unexpected shape — showing the raw reply.', true);
-      return;
-    }
-
-    renderVerdict(data);
+    renderVerdict(data || {});
     setStatus(runStatus, '', false);
 
   } catch(err){
-    const status = err && err.status;
-    let msg = (err && err.message) || 'Something went wrong.';
-    if(status === 401) msg = 'That API key was rejected. Check it and save again.';
-    else if(status === 429) msg = 'Rate limited or out of credit — wait a moment and retry.';
-    else if(status === 400) msg = 'The request was rejected: ' + msg;
-    else if(status >= 500) msg = 'Anthropic had a server error — retry in a moment.';
-    else if(/Failed to fetch|NetworkError|dynamically imported/i.test(msg)) msg = 'Could not reach the API. Check your connection and try again.';
-    setStatus(runStatus, msg, true);
+    const msg = (err && err.message) || 'Something went wrong.';
+    setStatus(runStatus, /Failed to fetch|NetworkError/i.test(msg)
+      ? 'Could not reach the server. Check your connection and try again.'
+      : msg, true);
   } finally {
     setRunning(false);
   }
