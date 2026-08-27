@@ -406,6 +406,8 @@
   .btn.ghost:hover{background:var(--line);}
   .btn.small{padding:6px 12px;font-size:12px;}
   .label-short{display:none;}
+  #resetBtn{display:none;}
+  #resetBtn.show{display:inline-block;}
   .score-card{
     display:none;
     margin-top:18px;
@@ -1048,6 +1050,20 @@ function updateCount(ci){
   state[catNames[ci]].forEach(s=>{ if(s.rating==='strong') strong++; if(s.rating==='weak') weak++; });
   document.getElementById('tally-'+ci).innerHTML =
     `<b>${rated}</b>/${total} rated &middot; <span class="g">${strong} strong</span> &middot; <span class="r">${weak} weak</span>`;
+  syncResetVisibility();
+}
+
+// Reset all is hidden until there is something to reset.
+function hasAnyState(){
+  return catNames.some(cat=>{
+    if(state[cat].some(s=>s.rating || (s.note && s.note.trim()))) return true;
+    if(GATES[cat] && state.gates[cat]) return true;
+    if((state.perceptions[cat]||'').trim()) return true;
+    return false;
+  });
+}
+function syncResetVisibility(){
+  document.getElementById('resetBtn').classList.toggle('show', hasAnyState());
 }
 
 function computeScore(cat){
@@ -1089,6 +1105,7 @@ panelsEl.addEventListener('click', (e)=>{
       banner.classList.remove('show');
     }
     document.getElementById('score-card-'+ci).classList.remove('show');
+    syncResetVisibility();
     return;
   }
   const btn = e.target.closest('.seg button');
@@ -1203,11 +1220,13 @@ panelsEl.addEventListener('input', (e)=>{
     const concept = e.target.closest('.concept');
     const ci = concept.dataset.cat, ii = concept.dataset.item;
     state[catNames[ci]][ii].note = e.target.value;
+    syncResetVisibility();
     return;
   }
   if(e.target.classList.contains('perception-input')){
     const ci = e.target.id.replace('perception-','');
     state.perceptions[catNames[ci]] = e.target.value;
+    syncResetVisibility();
   }
 });
 
