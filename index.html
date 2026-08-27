@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Design Evaluation Checklist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -20,13 +21,16 @@
     --focus:#1d5fae;
   }
   *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
   body{
     margin:0;
     background:var(--paper);
     color:var(--ink);
     font-family:'JetBrains Mono', monospace;
     -webkit-font-smoothing:antialiased;
+    overflow-wrap:break-word;
   }
+  button{-webkit-tap-highlight-color:transparent;}
   a:focus-visible,
   button:focus-visible,
   input:focus-visible,
@@ -402,11 +406,13 @@
   }
   .btn.ghost:hover{background:var(--line);}
   .btn.small{padding:6px 12px;font-size:12px;}
+  .label-short{display:none;}
   .score-card{
     display:none;
     margin-top:18px;
     background:#fff;
     border:1px solid var(--line-strong);
+    scroll-margin-top:86px;
   }
   .score-card.show{display:block;}
   .score-head{
@@ -511,6 +517,74 @@
   .prompt-list li{margin-bottom:8px;}
   .prompt-list.ranked{list-style:decimal;}
   .prompt-list:not(.ranked){list-style:disc;}
+
+  /* ---- Mobile ------------------------------------------------------- */
+  @media (max-width:600px){
+    .wrap{padding:20px 16px 56px;}
+    header{padding-bottom:14px;margin-bottom:18px;}
+    header h1{font-size:24px;}
+
+    /* Two tools read as a segmented control */
+    .sidenav{gap:0;}
+    .tool-link{flex:1 1 0;min-width:0;padding:12px 10px;min-height:52px;border-right-width:0;}
+    .tool-link:last-child{border-right-width:1px;}
+    .tool-step{display:none;}
+    .tool-name{font-size:15px;margin-bottom:0;}
+
+    /* Category nav is always the active pill plus a dropdown */
+    .topnav{padding:10px 0;gap:8px;align-items:center;flex-wrap:nowrap;}
+    .topnav .btn{align-self:center;flex:0 0 auto;}
+    .label-long{display:none;}
+    .label-short{display:inline;}
+    .tabs{min-width:0;}
+    .tab{
+      font-size:11px;
+      padding:11px 12px;
+      min-height:44px;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .tab:not(.active){display:none;}
+    .tab.active{cursor:pointer;}
+    .tab.active::after{
+      content:"\25BE";
+      margin-left:8px;
+      font-size:10px;
+      vertical-align:1px;
+    }
+    .topnav.menu-open .tab.active::after{content:"\25B4";}
+    .topnav.menu-open .nav-menu{display:block;}
+    .nav-menu{left:0;right:0;min-width:0;}
+    .nav-menu-item{padding:14px 16px;min-height:48px;}
+
+    /* Rating rows stack, control spans the full width */
+    .concept{grid-template-columns:1fr;gap:10px;padding:16px 0;}
+    .controls{align-items:stretch;width:100%;}
+    .seg{width:100%;}
+    .seg button{flex:1 1 0;min-height:44px;padding:10px 8px;}
+    .gate-row{flex-wrap:wrap;padding:12px;}
+    .gate-seg{width:100%;}
+    .gate-seg button{flex:1 1 0;min-height:44px;}
+    .extra-row.show{flex-direction:column;align-items:stretch;gap:6px;}
+
+    /* 16px inputs so iOS Safari does not zoom on focus */
+    .note-input{width:100%;min-width:0;font-size:16px;padding:10px;}
+    .perception-input{font-size:16px;padding:13px 12px;}
+    .prompt-textarea{font-size:16px;}
+
+    .btn{min-height:44px;padding:12px 18px;}
+    .btn.small{min-height:44px;font-size:11px;padding:11px 12px;}
+    .cat-action-bar{flex-direction:column;align-items:stretch;gap:14px;}
+    .cat-action-bar .btn{width:100%;}
+    .module-action-bar{flex-direction:column-reverse;align-items:stretch;gap:10px;}
+    .module-action-bar .btn{width:100%;}
+    .score-head{flex-wrap:wrap;padding:16px 16px 12px;gap:6px 12px;}
+    .report{padding:16px;}
+    .copy-row{padding:0 16px 16px;}
+    .score-card{scroll-margin-top:76px;}
+  }
 </style>
 </head>
 <body>
@@ -558,7 +632,7 @@
       <section class="tool-view" id="tool-1" aria-label="Evaluate a design">
         <div class="topnav" id="topnav">
           <div class="tabs" id="tabs"></div>
-          <button class="btn ghost small" id="resetBtn">Reset all</button>
+          <button class="btn ghost small" id="resetBtn" aria-label="Reset all"><span class="label-long">Reset all</span><span class="label-short">Reset</span></button>
         </div>
         <div id="panels"></div>
       </section>
@@ -827,6 +901,13 @@ const topnavEl = document.getElementById('topnav');
 const catNames = Object.keys(DATA);
 tabsEl.setAttribute('role','tablist');
 
+// The nav shows a single pill plus a dropdown when it is stuck to the top,
+// and always on mobile where four wrapping pills cost too much height.
+const mobileNav = window.matchMedia('(max-width:600px)');
+function navCollapsed(){
+  return mobileNav.matches || topnavEl.classList.contains('stuck');
+}
+
 function closeNavMenu(){
   topnavEl.classList.remove('menu-open');
   const active = tabsEl.querySelector('.tab.active');
@@ -857,7 +938,7 @@ catNames.forEach((cat, ci)=>{
   tab.innerHTML = cat + ' <span class="count" id="count-'+ci+'">0/'+DATA[cat].items.length+'</span><span class="score-chip" id="chip-'+ci+'" style="display:none;"></span>';
   tab.onclick = ()=>{
     // When collapsed to a single pill, the active pill acts as a menu toggle.
-    if(topnavEl.classList.contains('stuck') && tab.classList.contains('active')){
+    if(navCollapsed() && tab.classList.contains('active')){
       const open = topnavEl.classList.toggle('menu-open');
       tab.setAttribute('aria-expanded', open ? 'true' : 'false');
       return;
@@ -944,7 +1025,12 @@ catNames.forEach((cat, ci)=>{
   mi.dataset.cat = ci;
   mi.setAttribute('role','menuitem');
   mi.textContent = cat;
-  mi.onclick = ()=>{ selectCategory(ci); closeNavMenu(); };
+  mi.onclick = ()=>{
+    selectCategory(ci);
+    closeNavMenu();
+    // Land at the top of the newly selected list rather than mid-scroll.
+    topnavEl.scrollIntoView({block:'start'});
+  };
   navMenu.appendChild(mi);
 });
 tabsEl.after(navMenu);
@@ -1159,6 +1245,7 @@ const syncStuck = ()=>{
 };
 window.addEventListener('scroll', syncStuck, {passive:true});
 window.addEventListener('resize', syncStuck);
+mobileNav.addEventListener('change', closeNavMenu);
 syncStuck();
 
 // Switch between the two tools: decode a prompt, evaluate a design.
