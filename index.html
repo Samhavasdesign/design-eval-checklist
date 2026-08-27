@@ -69,11 +69,26 @@
     text-transform:uppercase;
     white-space:nowrap;
   }
+  .topnav{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--paper);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px 16px;
+    flex-wrap:wrap;
+    padding:12px 0;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .topnav .btn{flex:0 0 auto;align-self:flex-start;margin-left:auto;}
   .tabs{
     display:flex;
     gap:2px;
-    margin-bottom:22px;
     flex-wrap:wrap;
+    flex:1 1 auto;
   }
   .tab{
     font-family:'JetBrains Mono', monospace;
@@ -316,19 +331,6 @@
   }
   .copied{color:var(--green);font-size:12px;opacity:0;transition:opacity 0.2s;}
   .copied.show{opacity:1;}
-  .footer-bar{
-    position:sticky;
-    bottom:0;
-    background:var(--paper);
-    border-top:2px solid var(--ink);
-    padding:14px 0 4px;
-    margin-top:28px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:12px;
-  }
   .module-divider{
     height:2px;
     background:var(--ink);
@@ -411,14 +413,11 @@
     <div class="stamp">for review</div>
   </header>
 
-  <div class="tabs" id="tabs"></div>
-  <div id="panels"></div>
-
-
-  <div class="footer-bar">
-    <span></span>
-    <button class="btn ghost" id="resetBtn">Reset all</button>
+  <div class="topnav" id="topnav">
+    <div class="tabs" id="tabs"></div>
+    <button class="btn ghost small" id="resetBtn">Reset all</button>
   </div>
+  <div id="panels"></div>
 
   <div class="module-divider"></div>
 
