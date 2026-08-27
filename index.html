@@ -1063,7 +1063,8 @@ function hasAnyState(){
   });
 }
 function syncResetVisibility(){
-  document.getElementById('resetBtn').classList.toggle('show', hasAnyState());
+  const show = hasAnyState() && topnavEl.classList.contains('stuck');
+  document.getElementById('resetBtn').classList.toggle('show', show);
 }
 
 function computeScore(cat){
@@ -1259,6 +1260,7 @@ const syncStuck = ()=>{
   const stuck = topnavEl.getBoundingClientRect().top <= 0;
   topnavEl.classList.toggle('stuck', stuck);
   if(!stuck) closeNavMenu();
+  syncResetVisibility();
 };
 window.addEventListener('scroll', syncStuck, {passive:true});
 window.addEventListener('resize', syncStuck);
